@@ -7,11 +7,11 @@ export interface Participante {
 export interface Partida {
   id: string;
   rodada: number;
-  participante1: Participante | null;
-  participante2: Participante | null;
+  participante1: Participante | undefined;
+  participante2: Participante | undefined;
   placar1?: number;
   placar2?: number;
-  vencedor: Participante | null;
+  vencedor?: Participante;
   byeAutomatico: boolean;
   partidaAnterior1?: string;
   partidaAnterior2?: string;

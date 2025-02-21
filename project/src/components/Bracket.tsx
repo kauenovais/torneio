@@ -15,9 +15,9 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
     return partidas.filter(p => p.rodada === rodada);
   };
 
-  const handleVencedor = (partida: Partida, participante: Participante | null) => {
+  const handleVencedor = (partida: Partida, participante: Participante | undefined) => {
     if (partida.vencedor?.id === participante?.id) {
-      onAtualizarPartida({ ...partida, vencedor: null, placar1: undefined, placar2: undefined });
+      onAtualizarPartida({ ...partida, vencedor: undefined, placar1: undefined, placar2: undefined });
       setPlacares(prev => {
         const newPlacares = { ...prev };
         delete newPlacares[partida.id];
@@ -48,7 +48,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
     if (!partida) return;
 
     // Determina o vencedor baseado nos placares
-    let vencedor: Participante | null = null;
+    let vencedor: Participante | undefined = undefined;
     if (!isNaN(placar1) && !isNaN(placar2)) {
       if (placar1 > placar2) {
         vencedor = partida.participante1;
@@ -62,7 +62,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
       ...partida,
       placar1: !isNaN(placar1) ? placar1 : undefined,
       placar2: !isNaN(placar2) ? placar2 : undefined,
-      vencedor: vencedor
+      vencedor
     });
   };
 

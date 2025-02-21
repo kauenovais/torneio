@@ -9,7 +9,7 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
   // Primeira rodada
   const participantesComBye = [...participantes];
   while (participantesComBye.length < totalParticipantes) {
-    participantesComBye.push(null);
+    participantesComBye.push(undefined);
   }
 
   // Cria as partidas da primeira rodada
@@ -18,7 +18,7 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
     const participante2 = participantesComBye[i + 1];
 
     // Se tiver apenas um participante, ele avança automaticamente
-    const vencedor = participante2 === null ? participante1 : null;
+    const vencedor = !participante2 ? participante1 : undefined;
 
     partidas.push({
       id: uuidv4(),
@@ -26,7 +26,7 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
       participante1,
       participante2,
       vencedor,
-      byeAutomatico: participante2 === null,
+      byeAutomatico: !participante2,
       placar1: undefined,
       placar2: undefined
     });
@@ -40,11 +40,11 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
       const partidaAnterior2 = partidasRodadaAnterior[i + 1];
 
       // Se uma das partidas anteriores tem bye automático, o vencedor já é conhecido
-      const participante1 = partidaAnterior1?.vencedor || null;
-      const participante2 = partidaAnterior2?.vencedor || null;
+      const participante1 = partidaAnterior1?.vencedor;
+      const participante2 = partidaAnterior2?.vencedor;
 
       // Se tiver apenas um participante, ele avança automaticamente
-      const vencedor = participante2 === null ? participante1 : null;
+      const vencedor = !participante2 ? participante1 : undefined;
 
       partidas.push({
         id: uuidv4(),
@@ -52,7 +52,7 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
         participante1,
         participante2,
         vencedor,
-        byeAutomatico: participante2 === null,
+        byeAutomatico: !participante2,
         placar1: undefined,
         placar2: undefined,
         partidaAnterior1: partidaAnterior1?.id,
@@ -77,18 +77,18 @@ export function atualizarChaveamento(partidas: Partida[], partidaAtualizada: Par
       const partidaAnterior1 = partidas.find(p => p.id === partida.partidaAnterior1);
       const partidaAnterior2 = partidas.find(p => p.id === partida.partidaAnterior2);
 
-      const participante1 = partidaAnterior1?.vencedor || null;
-      const participante2 = partidaAnterior2?.vencedor || null;
+      const participante1 = partidaAnterior1?.vencedor;
+      const participante2 = partidaAnterior2?.vencedor;
 
       // Se tiver apenas um participante, ele avança automaticamente
-      const vencedor = participante2 === null ? participante1 : null;
+      const vencedor = !participante2 ? participante1 : undefined;
 
       return {
         ...partida,
         participante1,
         participante2,
         vencedor,
-        byeAutomatico: participante2 === null,
+        byeAutomatico: !participante2,
         placar1: undefined,
         placar2: undefined
       };
