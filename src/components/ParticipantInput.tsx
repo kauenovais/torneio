@@ -6,9 +6,10 @@ interface Props {
   onSubmit: (participantes: Participante[]) => void;
   isEquipes: boolean;
   tema: 'light' | 'dark';
+  className?: string;
 }
 
-const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes, tema }) => {
+const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes, tema, className }) => {
   const [participantes, setParticipantes] = useState<Participante[]>([
     { id: 1, nome: '', seed: 1 },
   ]);
@@ -162,7 +163,7 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes, tema }) =>
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
+    <div className={`bg-white rounded-xl shadow-lg p-6 animate-fade-in ${className || ''}`}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-4">
           {participantes.map((participante, index) => (
