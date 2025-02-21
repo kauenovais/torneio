@@ -521,19 +521,43 @@ function App() {
           className={`
             p-8 rounded-xl shadow-lg transition-all duration-300
             flex flex-col items-center justify-center gap-4
-            hover:transform hover:scale-105
+            hover:transform hover:scale-105 relative
             ${tema === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-blue-50'}
+            before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br
+            ${tema === 'dark' ? 'before:from-gray-700/50 before:to-gray-800/50' : 'before:from-blue-50/50 before:to-indigo-50/50'}
+            before:opacity-0 hover:before:opacity-100 before:transition-opacity
           `}
         >
-          <div className="text-5xl">👤</div>
-          <h3
-            className={`text-xl font-semibold ${tema === 'dark' ? 'text-white' : 'text-gray-800'}`}
-          >
-            Torneio Individual
-          </h3>
-          <p className={`text-center ${tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-            Para competições entre jogadores individuais
-          </p>
+          <div className="relative z-10">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-20 w-20"
+              viewBox="0 0 24 24"
+              fill="none"
+              strokeWidth="1.5"
+              stroke={tema === 'dark' ? '#e5e7eb' : '#1f2937'}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+              <path d="M12 3v1" opacity="0.5" />
+              <path d="M18 7h1" opacity="0.5" />
+              <path d="M5 7H4" opacity="0.5" />
+              <path d="M16.95 11.95l0.7 0.7" opacity="0.5" />
+              <path d="M7.05 11.95l-0.7 0.7" opacity="0.5" />
+            </svg>
+          </div>
+          <div className="relative z-10 space-y-2">
+            <h3
+              className={`text-2xl font-bold ${tema === 'dark' ? 'text-white' : 'text-gray-800'}`}
+            >
+              Torneio Individual
+            </h3>
+            <p className={`text-center ${tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              Para competições entre jogadores individuais
+            </p>
+          </div>
         </button>
 
         <button
@@ -541,19 +565,45 @@ function App() {
           className={`
             p-8 rounded-xl shadow-lg transition-all duration-300
             flex flex-col items-center justify-center gap-4
-            hover:transform hover:scale-105
+            hover:transform hover:scale-105 relative
             ${tema === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-blue-50'}
+            before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br
+            ${tema === 'dark' ? 'before:from-gray-700/50 before:to-gray-800/50' : 'before:from-blue-50/50 before:to-indigo-50/50'}
+            before:opacity-0 hover:before:opacity-100 before:transition-opacity
           `}
         >
-          <div className="text-5xl">👥</div>
-          <h3
-            className={`text-xl font-semibold ${tema === 'dark' ? 'text-white' : 'text-gray-800'}`}
-          >
-            Torneio em Equipes
-          </h3>
-          <p className={`text-center ${tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-            Para competições entre times ou equipes
-          </p>
+          <div className="relative z-10">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-20 w-20"
+              viewBox="0 0 24 24"
+              fill="none"
+              strokeWidth="1.5"
+              stroke={tema === 'dark' ? '#e5e7eb' : '#1f2937'}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              <path d="M9 3v1" opacity="0.5" />
+              <path d="M15 7h1" opacity="0.5" />
+              <path d="M3 7H2" opacity="0.5" />
+              <path d="M13.95 11.95l0.7 0.7" opacity="0.5" />
+              <path d="M4.05 11.95l-0.7 0.7" opacity="0.5" />
+            </svg>
+          </div>
+          <div className="relative z-10 space-y-2">
+            <h3
+              className={`text-2xl font-bold ${tema === 'dark' ? 'text-white' : 'text-gray-800'}`}
+            >
+              Torneio em Equipes
+            </h3>
+            <p className={`text-center ${tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              Para competições entre times ou equipes
+            </p>
+          </div>
         </button>
       </div>
     </div>
@@ -634,100 +684,4 @@ function App() {
                   onClick={handleNovoTorneio}
                   className={`px-4 py-2 rounded-lg transition-colors ${
                     tema === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
-                  }`}
-                >
-                  Novo Torneio
-                </button>
-                <button
-                  onClick={handleCompartilhar}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Compartilhar
-                </button>
-              </div>
-            )}
-          </div>
-        </header>
-
-        {!mostrarChaveamento ? (
-          isEquipes === null ? (
-            renderSelecaoTipoTorneio()
-          ) : (
-            <div className="max-w-md mx-auto animate-fade-in">
-              <div className="mb-6 flex justify-center">
-                <button
-                  onClick={() => setIsEquipes(null)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    tema === 'dark'
-                      ? 'bg-gray-800 hover:bg-gray-700 text-gray-300'
-                      : 'bg-white hover:bg-gray-50 text-gray-700'
-                  }`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Voltar para Seleção
-                </button>
-              </div>
-              {renderNomeTorneio()}
-              <EntradaParticipantes
-                onSubmit={handleSubmitParticipantes}
-                isEquipes={isEquipes}
-                tema={tema}
-              />
-            </div>
-          )
-        ) : (
-          <div className="animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <button
-                onClick={() => setMostrarChaveamento(false)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                  tema === 'dark'
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Voltar
-              </button>
-              <div className={tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
-                {isEquipes ? 'Torneio em Equipes' : 'Torneio Individual'}
-                {torneioSalvo && ' • Salvo'}
-              </div>
-            </div>
-            <div
-              className={`rounded-xl shadow-lg p-6 overflow-x-auto ${
-                tema === 'dark' ? 'bg-gray-800' : 'bg-white'
-              }`}
-            >
-              <Chaveamento partidas={partidas} onAtualizarPartida={handleAtualizarPartida} />
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default App;
+                  }`
