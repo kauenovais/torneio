@@ -11,7 +11,7 @@ export interface Partida {
   participante2: Participante | null;
   placar1?: number;
   placar2?: number;
-  vencedor?: Participante;
+  vencedor: Participante | null;
   byeAutomatico: boolean;
   partidaAnterior1?: string;
   partidaAnterior2?: string;

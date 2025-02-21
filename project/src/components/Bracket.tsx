@@ -48,7 +48,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
     if (!partida) return;
 
     // Determina o vencedor baseado nos placares
-    let vencedor: Participante | undefined = undefined;
+    let vencedor: Participante | null = null;
     if (!isNaN(placar1) && !isNaN(placar2)) {
       if (placar1 > placar2) {
         vencedor = partida.participante1;
@@ -62,7 +62,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
       ...partida,
       placar1: !isNaN(placar1) ? placar1 : undefined,
       placar2: !isNaN(placar2) ? placar2 : undefined,
-      vencedor
+      vencedor: vencedor
     });
   };
 
@@ -72,8 +72,8 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
     const placaresDaPartida = placares[partida.id] || {};
 
     return (
-      <div 
-        key={partida.id} 
+      <div
+        key={partida.id}
         className={`relative bg-white rounded-lg shadow-lg p-4 ${spacing} animate-scale-in hover-scale transition-all`}
       >
         <div className="space-y-2">

@@ -18,7 +18,7 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
     const participante2 = participantesComBye[i + 1];
 
     // Se tiver apenas um participante, ele avança automaticamente
-    const vencedor = participante2 === null ? participante1 : undefined;
+    const vencedor = participante2 === null ? participante1 : null;
 
     partidas.push({
       id: uuidv4(),
@@ -44,7 +44,7 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
       const participante2 = partidaAnterior2?.vencedor || null;
 
       // Se tiver apenas um participante, ele avança automaticamente
-      const vencedor = participante2 === null ? participante1 : undefined;
+      const vencedor = participante2 === null ? participante1 : null;
 
       partidas.push({
         id: uuidv4(),
@@ -81,7 +81,7 @@ export function atualizarChaveamento(partidas: Partida[], partidaAtualizada: Par
       const participante2 = partidaAnterior2?.vencedor || null;
 
       // Se tiver apenas um participante, ele avança automaticamente
-      const vencedor = participante2 === null ? participante1 : undefined;
+      const vencedor = participante2 === null ? participante1 : null;
 
       return {
         ...partida,
