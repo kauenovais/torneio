@@ -20,6 +20,11 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import './styles/animations.css';
 import { registerSW } from 'virtual:pwa-register';
+import Onboarding from './components/Onboarding';
+import Feedback from './components/Feedback';
+import TipsAndShortcuts from './components/TipsAndShortcuts';
+import Tutorial from './components/Tutorial';
+import KeyboardShortcuts from './components/KeyboardShortcuts';
 
 // URL base da aplicação
 const BASE_URL =
@@ -53,6 +58,9 @@ function App() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isPwaInstalled, setIsPwaInstalled] = useState(false);
   const [showInstallButton, setShowInstallButton] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [showTips, setShowTips] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(true);
 
   useEffect(() => {
     // Carregar tema do localStorage
@@ -122,6 +130,18 @@ function App() {
         console.error('Erro ao registrar Service Worker:', error);
       },
     });
+
+    // Verificar se é a primeira visita
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (hasSeenOnboarding) {
+      setShowOnboarding(false);
+    }
+
+    // Verificar preferência de dicas
+    const tipsPreference = localStorage.getItem('showTips');
+    if (tipsPreference === 'false') {
+      setShowTips(false);
+    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -506,6 +526,10 @@ function App() {
     }
   };
 
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+  };
+
   const renderSelecaoTipoTorneio = () => (
     <div className="max-w-4xl mx-auto animate-fade-in">
       <h2
@@ -696,7 +720,7 @@ function App() {
             )}
             <button
               onClick={toggleTema}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-2 rounded-lg transition-colors tema-btn ${
                 tema === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
               }`}
             >
@@ -707,7 +731,7 @@ function App() {
               <div className="flex gap-2">
                 <button
                   onClick={handleNovoTorneio}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
+                  className={`px-4 py-2 rounded-lg transition-colors novo-torneio-btn ${
                     tema === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
                   }`}
                 >
@@ -715,7 +739,7 @@ function App() {
                 </button>
                 <button
                   onClick={handleCompartilhar}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors compartilhar-btn"
                 >
                   Compartilhar
                 </button>
@@ -726,7 +750,151 @@ function App() {
 
         {!mostrarChaveamento ? (
           isEquipes === null ? (
-            renderSelecaoTipoTorneio()
+            <div className="max-w-4xl mx-auto animate-fade-in">
+              <h2
+                className={`text-2xl font-bold mb-8 text-center ${
+                  tema === 'dark' ? 'text-white' : 'text-gray-800'
+                }`}
+              >
+                Selecione o Tipo de Torneio
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6 px-4">
+                <button
+                  onClick={() => setIsEquipes(false)}
+                  className={`tipo-torneio-btn
+                    p-8 rounded-xl shadow-lg transition-all duration-300
+                    flex flex-col items-center justify-center gap-4
+                    hover:transform hover:scale-105 relative
+                    ${
+                      tema === 'dark'
+                        ? 'bg-gray-800 hover:bg-gray-700'
+                        : 'bg-white hover:bg-blue-50'
+                    }
+                    before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br
+                    ${
+                      tema === 'dark'
+                        ? 'before:from-gray-700/50 before:to-gray-800/50'
+                        : 'before:from-blue-50/50 before:to-indigo-50/50'
+                    }
+                    before:opacity-0 hover:before:opacity-100 before:transition-opacity
+                  `}
+                >
+                  <div className="relative z-10">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-20 w-20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      strokeWidth="1.5"
+                      stroke={tema === 'dark' ? '#e5e7eb' : '#1f2937'}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {/* Medalha principal */}
+                      <circle cx="12" cy="10" r="4" />
+                      <circle cx="12" cy="10" r="2.5" opacity="0.5" />
+
+                      {/* Fita da medalha */}
+                      <path d="M12 2v4" />
+                      <path d="M9 3c0 0 0 2 3 3c3-1 3-3 3-3" />
+
+                      {/* Detalhes da medalha */}
+                      <path d="M12 14v2" />
+                      <path d="M8.5 15.5L12 17l3.5-1.5" />
+
+                      {/* Estrelas decorativas */}
+                      <path d="M7 8l-1-1" opacity="0.5" />
+                      <path d="M17 8l1-1" opacity="0.5" />
+
+                      {/* Brilho da medalha */}
+                      <path d="M10 10h4" opacity="0.3" />
+                      <path d="M12 8v4" opacity="0.3" />
+                    </svg>
+                  </div>
+                  <div className="relative z-10 space-y-2">
+                    <h3
+                      className={`text-2xl font-bold ${
+                        tema === 'dark' ? 'text-white' : 'text-gray-800'
+                      }`}
+                    >
+                      Torneio Individual
+                    </h3>
+                    <p
+                      className={`text-center ${
+                        tema === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                      }`}
+                    >
+                      Para competições entre atletas individuais
+                    </p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setIsEquipes(true)}
+                  className={`
+                    p-8 rounded-xl shadow-lg transition-all duration-300
+                    flex flex-col items-center justify-center gap-4
+                    hover:transform hover:scale-105 relative
+                    ${
+                      tema === 'dark'
+                        ? 'bg-gray-800 hover:bg-gray-700'
+                        : 'bg-white hover:bg-blue-50'
+                    }
+                    before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br
+                    ${
+                      tema === 'dark'
+                        ? 'before:from-gray-700/50 before:to-gray-800/50'
+                        : 'before:from-blue-50/50 before:to-indigo-50/50'
+                    }
+                    before:opacity-0 hover:before:opacity-100 before:transition-opacity
+                  `}
+                >
+                  <div className="relative z-10">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-20 w-20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      strokeWidth="1.5"
+                      stroke={tema === 'dark' ? '#e5e7eb' : '#1f2937'}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {/* Troféu central */}
+                      <path d="M12 15l-2-2h4l-2 2z" />
+                      <path d="M7 7h10v3c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4V7z" />
+                      <path d="M17 7h2v3c0 1.1-.9 2-2 2" />
+                      <path d="M7 7H5v3c0 1.1.9 2 2 2" />
+                      {/* Base do troféu */}
+                      <path d="M12 15v3" />
+                      <path d="M8 18h8" />
+                      {/* Detalhes do troféu */}
+                      <path d="M12 7v2" opacity="0.5" />
+                      <path d="M9 9h6" opacity="0.5" />
+                      {/* Estrelas laterais */}
+                      <path d="M5 5l1 1" opacity="0.5" />
+                      <path d="M19 5l-1 1" opacity="0.5" />
+                    </svg>
+                  </div>
+                  <div className="relative z-10 space-y-2">
+                    <h3
+                      className={`text-2xl font-bold ${
+                        tema === 'dark' ? 'text-white' : 'text-gray-800'
+                      }`}
+                    >
+                      Torneio em Equipes
+                    </h3>
+                    <p
+                      className={`text-center ${
+                        tema === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                      }`}
+                    >
+                      Para competições entre times ou equipes
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </div>
           ) : (
             <div className="max-w-md mx-auto animate-fade-in">
               <div className="mb-6 flex justify-center">
@@ -758,6 +926,7 @@ function App() {
                 onSubmit={handleSubmitParticipantes}
                 isEquipes={isEquipes}
                 tema={tema}
+                className="participantes-input"
               />
             </div>
           )
@@ -792,7 +961,7 @@ function App() {
               </div>
             </div>
             <div
-              className={`rounded-xl shadow-lg p-6 overflow-x-auto ${
+              className={`rounded-xl shadow-lg p-6 overflow-x-auto chaveamento-container ${
                 tema === 'dark' ? 'bg-gray-800' : 'bg-white'
               }`}
             >
@@ -800,6 +969,12 @@ function App() {
             </div>
           </div>
         )}
+
+        {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} tema={tema} />}
+        {showTutorial && <Tutorial onComplete={() => setShowTutorial(false)} tema={tema} />}
+        <KeyboardShortcuts tema={tema} />
+        <Feedback tema={tema} />
+        {showTips && <TipsAndShortcuts tema={tema} />}
       </div>
     </div>
   );

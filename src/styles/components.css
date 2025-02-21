@@ -1,0 +1,123 @@
+/* Tutorial */
+.tutorial-highlight {
+  position: relative;
+}
+
+.tutorial-highlight::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Keyboard Shortcuts */
+.shortcut-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.shortcut-key:hover {
+  transform: translateY(-1px);
+}
+
+/* Feedback Button */
+.feedback-button {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.feedback-button:hover {
+  transform: scale(1.1);
+}
+
+/* Tips */
+.tip-container {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  max-width: 300px;
+  transition: transform 0.3s ease;
+}
+
+.tip-container:hover {
+  transform: translateY(-4px);
+}
+
+/* Shared Animations */
+.fade-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.fade-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Dark Mode Transitions */
+.dark-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .tip-container {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 4rem;
+  }
+
+  .feedback-button {
+    bottom: 4rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
