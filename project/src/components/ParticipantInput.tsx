@@ -11,19 +11,7 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
   const [participantes, setParticipantes] = useState<Participante[]>([{ id: 1, nome: '', seed: 1 }]);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  useEffect(() => {
-    // Detecta se é dispositivo móvel
-    const checkMobile = () => {
-      setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   useEffect(() => {
     // Atualiza a referência dos inputs quando a lista de participantes muda
