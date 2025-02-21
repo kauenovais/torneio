@@ -105,7 +105,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          utils: ['uuid']
+          charts: ['chart.js', 'react-chartjs-2'],
+          utils: ['uuid', 'qrcode.react', 'react-share']
         }
       }
     },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ConfiguracaoTorneio } from '../types';
+import type { ConfiguracaoTorneio } from '../types';
 
 interface Props {
   onSave: (config: ConfiguracaoTorneio) => void;

@@ -14,8 +14,8 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
 
   // Cria as partidas da primeira rodada
   for (let i = 0; i < participantesComBye.length; i += 2) {
-    const participante1 = participantesComBye[i] || undefined;
-    const participante2 = participantesComBye[i + 1] || undefined;
+    const participante1 = participantesComBye[i] || null;
+    const participante2 = participantesComBye[i + 1] || null;
 
     partidas.push({
       id: uuidv4(),
@@ -36,8 +36,8 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
       const partidaAnterior1 = partidasRodadaAnterior[i];
       const partidaAnterior2 = partidasRodadaAnterior[i + 1];
 
-      const participante1 = partidaAnterior1?.vencedor;
-      const participante2 = partidaAnterior2?.vencedor;
+      const participante1 = partidaAnterior1?.vencedor || null;
+      const participante2 = partidaAnterior2?.vencedor || null;
 
       partidas.push({
         id: uuidv4(),
@@ -68,8 +68,8 @@ export function atualizarChaveamento(partidas: Partida[], partidaAtualizada: Par
       const partidaAnterior1 = partidas.find(p => p.id === partida.partidaAnterior1);
       const partidaAnterior2 = partidas.find(p => p.id === partida.partidaAnterior2);
 
-      const participante1 = partidaAnterior1?.vencedor;
-      const participante2 = partidaAnterior2?.vencedor;
+      const participante1 = partidaAnterior1?.vencedor || null;
+      const participante2 = partidaAnterior2?.vencedor || null;
 
       return {
         ...partida,
