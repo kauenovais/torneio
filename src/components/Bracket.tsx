@@ -10,9 +10,13 @@ interface Props {
 }
 
 const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'light' }) => {
-  const [placares, setPlacares] = useState<Record<string, { placar1?: number; placar2?: number }>>({});
+  const [placares, setPlacares] = useState<Record<string, { placar1?: number; placar2?: number }>>(
+    {}
+  );
   const [loading, setLoading] = useState(true);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
+    null
+  );
   const maxRodada = Math.max(...partidas.map(p => p.rodada));
 
   useEffect(() => {
@@ -38,11 +42,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
     }
   };
 
-  const handlePlacarChange = (
-    partidaId: string,
-    campo: 'placar1' | 'placar2',
-    valor: string
-  ) => {
+  const handlePlacarChange = (partidaId: string, campo: 'placar1' | 'placar2', valor: string) => {
     const numeroValor = parseInt(valor, 10);
     if (isNaN(numeroValor) || numeroValor < 0) return;
 
@@ -50,8 +50,8 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
       ...prev,
       [partidaId]: {
         ...prev[partidaId],
-        [campo]: numeroValor
-      }
+        [campo]: numeroValor,
+      },
     }));
 
     const partida = partidas.find(p => p.id === partidaId);
@@ -59,22 +59,25 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
 
     const placaresAtuais = {
       ...placares[partidaId],
-      [campo]: numeroValor
+      [campo]: numeroValor,
     };
 
     if (typeof placaresAtuais.placar1 === 'number' && typeof placaresAtuais.placar2 === 'number') {
-      const partidaAtualizada = {
+      const partidaAtualizada: Partida = {
         ...partida,
         placar1: placaresAtuais.placar1,
         placar2: placaresAtuais.placar2,
-        vencedor: placaresAtuais.placar1 > placaresAtuais.placar2
-          ? partida.participante1
-          : placaresAtuais.placar1 < placaresAtuais.placar2
-          ? partida.participante2
-          : undefined
+        vencedor:
+          placaresAtuais.placar1 > placaresAtuais.placar2
+            ? partida.participante1
+            : placaresAtuais.placar1 < placaresAtuais.placar2
+            ? partida.participante2
+            : undefined,
       };
 
-      onAtualizarPartida(partidaAtualizada);
+      if (partidaAtualizada.vencedor) {
+        onAtualizarPartida(partidaAtualizada);
+      }
     }
   };
 
@@ -118,32 +121,54 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
                 className={`
                   w-full p-3 rounded-lg transition-all flex items-center justify-between
                   ${!participante ? 'bg-gray-100' : 'hover:bg-blue-50'}
-                  ${isVencedor ? 'bg-green-100 border-2 border-green-500' : 'border-2 border-transparent'}
-                  ${isUltimaRodada && isVencedor ? 'animate-pulse bg-yellow-100 border-yellow-500' : ''}
+                  ${
+                    isVencedor
+                      ? 'bg-green-100 border-2 border-green-500'
+                      : 'border-2 border-transparent'
+                  }
+                  ${
+                    isUltimaRodada && isVencedor
+                      ? 'animate-pulse bg-yellow-100 border-yellow-500'
+                      : ''
+                  }
                 `}
                 role="group"
-                aria-label={participante ? `${participante.nome}${isVencedor ? ' (Vencedor)' : ''}` : 'Aguardando participante'}
+                aria-label={
+                  participante
+                    ? `${participante.nome}${isVencedor ? ' (Vencedor)' : ''}`
+                    : 'Aguardando participante'
+                }
               >
                 <div className="flex-grow">
                   <button
                     onClick={() => participante && handleVencedor(partida, participante)}
                     disabled={!participante}
-                    className={`font-medium ${isVencedor ? 'text-green-700' : 'text-gray-700'} w-full text-left focus-visible`}
-                    aria-label={participante ? `Definir ${participante.nome} como vencedor` : 'Aguardando participante'}
+                    className={`font-medium ${
+                      isVencedor ? 'text-green-700' : 'text-gray-700'
+                    } w-full text-left focus-visible`}
+                    aria-label={
+                      participante
+                        ? `Definir ${participante.nome} como vencedor`
+                        : 'Aguardando participante'
+                    }
                   >
                     {participante?.nome || 'Aguardando...'}
                   </button>
                 </div>
                 {participante && !isPassagem && (
                   <div className="flex items-center ml-2">
-                    <label className="sr-only">
-                      {`Placar de ${participante.nome}`}
-                    </label>
+                    <label className="sr-only">{`Placar de ${participante.nome}`}</label>
                     <input
                       type="number"
                       min="0"
                       value={placarAtual ?? placarFinal ?? ''}
-                      onChange={(e) => handlePlacarChange(partida.id, index === 0 ? 'placar1' : 'placar2', e.target.value)}
+                      onChange={e =>
+                        handlePlacarChange(
+                          partida.id,
+                          index === 0 ? 'placar1' : 'placar2',
+                          e.target.value
+                        )
+                      }
                       className="w-16 px-2 py-1 text-sm border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent focus-visible"
                       placeholder="0"
                       aria-label={`Placar de ${participante.nome}`}
@@ -189,11 +214,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
         )}
       </AnimatePresence>
 
-      <div
-        className="space-y-8"
-        role="region"
-        aria-label="Chaveamento do torneio"
-      >
+      <div className="space-y-8" role="region" aria-label="Chaveamento do torneio">
         {partidas.map(partida => renderPartida(partida))}
       </div>
     </div>

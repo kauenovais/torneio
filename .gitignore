@@ -3,16 +3,14 @@ node_modules
 .pnp
 .pnp.js
 
-# Testing
-coverage
-/coverage
-*.lcov
-.nyc_output
-
 # Production
 /dist
 /build
 /out
+
+# Testing
+/coverage
+.nyc_output
 
 # Environment Variables
 .env
@@ -60,9 +58,13 @@ next-env.d.ts
 # Vite
 vite.config.ts.timestamp-*
 
-# Vercel
-.vercel
-.next
+# OS specific
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.pem
 
 # PWA / Service Workers
 **/public/sw.js
@@ -78,14 +80,6 @@ stats.json
 bundle-analysis.html
 .bundle-analysis
 .size-snapshot.json
-
-# OS specific
-.DS_Store
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-*.pem
 
 # Backup & temporary files
 *.bak
