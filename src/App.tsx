@@ -50,7 +50,7 @@ function App() {
   const [abaAtiva, setAbaAtiva] = useState<
     'chaveamento' | 'config' | 'stats' | 'admins' | 'export' | 'share'
   >('chaveamento');
-  const [pwaInstallPrompt, setPwaInstallPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isPwaInstalled, setIsPwaInstalled] = useState(false);
   const [showInstallButton, setShowInstallButton] = useState(false);
 
@@ -74,35 +74,19 @@ function App() {
       setTorneioSalvo(true);
     }
 
-    // Registrar service worker para PWA
-    const updateSW = registerSW({
-      onNeedRefresh() {
-        if (confirm('Nova versão disponível. Deseja atualizar?')) {
-          updateSW(true);
-        }
-      },
-      onOfflineReady() {
-        console.log('Aplicativo pronto para uso offline');
-      },
-      onRegistered(r) {
-        console.log('Service Worker registrado');
-      },
-      onRegisterError(error) {
-        console.error('Erro ao registrar Service Worker:', error);
-      },
-    });
-
     // Melhorado o gerenciamento da instalação do PWA
-    const handleBeforeInstallPrompt = (e: any) => {
+    const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setPwaInstallPrompt(e);
+      setDeferredPrompt(e);
       setShowInstallButton(true);
+      console.log('Install prompt captured');
     };
 
     const handleAppInstalled = () => {
       setIsPwaInstalled(true);
       setShowInstallButton(false);
-      setPwaInstallPrompt(null);
+      setDeferredPrompt(null);
+      console.log('PWA was installed');
     };
 
     // Verificar se o PWA está instalado
@@ -114,11 +98,30 @@ function App() {
 
       setIsPwaInstalled(isStandalone);
       setShowInstallButton(!isStandalone);
+      console.log('PWA installed status:', isStandalone);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
     checkPwaInstalled();
+
+    // Registrar service worker
+    const updateSW = registerSW({
+      onNeedRefresh() {
+        if (confirm('Nova versão disponível. Deseja atualizar?')) {
+          updateSW(true);
+        }
+      },
+      onOfflineReady() {
+        console.log('Aplicativo pronto para uso offline');
+      },
+      onRegistered(registration) {
+        console.log('Service Worker registrado:', registration);
+      },
+      onRegisterError(error) {
+        console.error('Erro ao registrar Service Worker:', error);
+      },
+    });
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -484,12 +487,19 @@ function App() {
   };
 
   const handleInstallClick = async () => {
-    if (!pwaInstallPrompt) return;
+    if (!deferredPrompt) {
+      console.log('No installation prompt available');
+      return;
+    }
 
     try {
-      const result = await pwaInstallPrompt.prompt();
+      console.log('Showing installation prompt');
+      // Show the install prompt
+      const result = await (deferredPrompt as any).prompt();
       console.log('Install prompt result:', result);
-      setPwaInstallPrompt(null);
+
+      // Reset the deferred prompt variable
+      setDeferredPrompt(null);
       setShowInstallButton(false);
     } catch (error) {
       console.error('Error installing PWA:', error);
