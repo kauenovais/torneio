@@ -85,13 +85,21 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
 
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-8">
         {[...Array(Math.ceil(partidas.length / 2))].map((_, index) => (
           <div key={index} className="skeleton h-24 rounded-lg" />
         ))}
       </div>
     );
   }
+
+  const partidasPorRodada = partidas.reduce((acc, partida) => {
+    if (!acc[partida.rodada]) {
+      acc[partida.rodada] = [];
+    }
+    acc[partida.rodada].push(partida);
+    return acc;
+  }, {} as Record<number, Partida[]>);
 
   const renderPartida = (partida: Partida) => {
     const isPassagem = !partida.participante2;
@@ -102,8 +110,8 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
         key={partida.id}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`bg-white rounded-lg shadow-md p-4 mb-4 ${
-          partida.rodada === 1 ? 'ml-0' : `ml-${partida.rodada * 4}`
+        className={`relative bg-white rounded-lg shadow-md p-4 ${
+          tema === 'dark' ? 'bg-gray-800' : ''
         }`}
       >
         <div className="space-y-2">
@@ -118,11 +126,11 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
             return (
               <div
                 key={participante?.id || `empty-${index}`}
-                className={`flex items-center justify-between p-2 rounded ${
+                className={`flex items-center justify-between p-2 rounded transition-all ${
                   !participante ? 'bg-gray-50' : 'hover:bg-blue-50'
                 } ${isVencedor ? 'bg-green-50 border border-green-500' : ''} ${
                   isUltimaRodada && isVencedor ? 'animate-pulse bg-yellow-50' : ''
-                } transition-all`}
+                }`}
               >
                 <button
                   onClick={() => participante && handleVencedor(partida, participante)}
@@ -174,7 +182,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
   };
 
   return (
-    <div className="relative">
+    <div className="relative overflow-x-auto">
       <AnimatePresence>
         {feedback && (
           <motion.div
@@ -192,8 +200,37 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col space-y-4">
-        {partidas.map(partida => renderPartida(partida))}
+      <div className="flex">
+        {Object.entries(partidasPorRodada).map(([rodada, partidasRodada]) => (
+          <div
+            key={rodada}
+            className={`flex flex-col justify-around min-w-[300px] ${
+              Number(rodada) > 1 ? 'ml-8' : ''
+            }`}
+            style={{
+              height: `${Math.pow(2, maxRodada - Number(rodada)) * 150}px`,
+              marginTop: `${Math.pow(2, Number(rodada) - 1) * 20}px`,
+            }}
+          >
+            {partidasRodada.map((partida, index) => (
+              <div
+                key={partida.id}
+                className="relative"
+                style={{
+                  marginBottom: index < partidasRodada.length - 1 ? '2rem' : 0,
+                }}
+              >
+                {renderPartida(partida)}
+                {Number(rodada) > 1 && (
+                  <div
+                    className="absolute left-0 top-1/2 w-8 border-t-2 border-gray-300"
+                    style={{ transform: 'translateX(-100%)' }}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   );
