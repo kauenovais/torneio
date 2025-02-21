@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'Gerador de Chaveamento de Torneio',
-        short_name: 'Chaveamento',
+        name: 'Gerenciamento de Torneio',
+        short_name: 'Torneio',
         description: 'Crie e gerencie seus chaveamentos de torneio facilmente',
         theme_color: '#3B82F6',
         start_url: '/',
