@@ -24,7 +24,7 @@ import Onboarding from './components/Onboarding';
 import Feedback from './components/Feedback';
 import TipsAndShortcuts from './components/TipsAndShortcuts';
 import Tutorial from './components/Tutorial';
-import KeyboardShortcuts from './components/KeyboardShortcuts';
+import HelpGuide from './components/KeyboardShortcuts';
 
 // URL base da aplicação
 const BASE_URL =
@@ -972,7 +972,7 @@ function App() {
 
         {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} tema={tema} />}
         {showTutorial && <Tutorial onComplete={() => setShowTutorial(false)} tema={tema} />}
-        <KeyboardShortcuts tema={tema} />
+        <HelpGuide tema={tema} />
         <Feedback tema={tema} />
         {showTips && <TipsAndShortcuts tema={tema} />}
       </div>

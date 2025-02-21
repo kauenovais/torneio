@@ -1,59 +1,82 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Props {
   tema: 'light' | 'dark';
 }
 
-interface Shortcut {
-  key: string;
+interface GuideItem {
+  title: string;
   description: string;
-  action: () => void;
+  icon: JSX.Element;
 }
 
-const KeyboardShortcuts: React.FC<Props> = ({ tema }) => {
+const HelpGuide: React.FC<Props> = ({ tema }) => {
   const [showHelp, setShowHelp] = useState(false);
 
-  const shortcuts: Shortcut[] = [
+  const guideItems: GuideItem[] = [
     {
-      key: '?',
-      description: 'Mostrar/ocultar ajuda',
-      action: () => setShowHelp(prev => !prev),
+      title: 'Criar Torneio',
+      description: 'Escolha entre torneio individual ou em equipes e adicione os participantes',
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+            clipRule="evenodd"
+          />
+        </svg>
+      ),
     },
     {
-      key: 'n',
-      description: 'Novo torneio',
-      action: () => document.querySelector<HTMLButtonElement>('.novo-torneio-btn')?.click(),
+      title: 'Gerenciar Partidas',
+      description: 'Atualize os resultados das partidas e acompanhe o progresso do torneio',
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+        </svg>
+      ),
     },
     {
-      key: 't',
-      description: 'Alternar tema',
-      action: () => document.querySelector<HTMLButtonElement>('.tema-btn')?.click(),
+      title: 'Compartilhar',
+      description: 'Compartilhe o link do torneio com outros participantes ou espectadores',
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+        </svg>
+      ),
     },
     {
-      key: 'c',
-      description: 'Compartilhar torneio',
-      action: () => document.querySelector<HTMLButtonElement>('.compartilhar-btn')?.click(),
-    },
-    {
-      key: 'Esc',
-      description: 'Fechar diálogos',
-      action: () => setShowHelp(false),
+      title: 'Estatísticas',
+      description: 'Visualize estatísticas detalhadas do torneio e desempenho dos participantes',
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+          <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+        </svg>
+      ),
     },
   ];
-
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      const shortcut = shortcuts.find(s => s.key.toLowerCase() === e.key.toLowerCase());
-      if (shortcut) {
-        e.preventDefault();
-        shortcut.action();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [shortcuts]);
 
   return (
     <>
@@ -62,6 +85,7 @@ const KeyboardShortcuts: React.FC<Props> = ({ tema }) => {
         className={`fixed bottom-4 right-20 rounded-full p-3 shadow-lg transition-colors ${
           tema === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
         }`}
+        title="Abrir guia de ajuda"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -74,7 +98,7 @@ const KeyboardShortcuts: React.FC<Props> = ({ tema }) => {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
       </button>
@@ -95,8 +119,8 @@ const KeyboardShortcuts: React.FC<Props> = ({ tema }) => {
                 tema === 'dark' ? 'bg-gray-800' : 'bg-white'
               }`}
             >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">Atalhos de Teclado</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">Como Usar</h2>
                 <button
                   onClick={() => setShowHelp(false)}
                   className={`p-2 rounded-lg transition-colors ${
@@ -118,26 +142,34 @@ const KeyboardShortcuts: React.FC<Props> = ({ tema }) => {
                 </button>
               </div>
 
-              <div className="space-y-3">
-                {shortcuts.map(shortcut => (
-                  <div key={shortcut.key} className="flex items-center justify-between py-2">
-                    <span className={tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
-                      {shortcut.description}
-                    </span>
-                    <kbd
-                      className={`px-3 py-1 rounded-lg font-mono text-sm ${
-                        tema === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800'
-                      }`}
+              <div className="space-y-4">
+                {guideItems.map(item => (
+                  <div
+                    key={item.title}
+                    className={`flex items-start space-x-4 p-4 rounded-lg ${
+                      tema === 'dark' ? 'bg-gray-700' : 'bg-gray-50'
+                    }`}
+                  >
+                    <div
+                      className={`p-2 rounded-lg ${tema === 'dark' ? 'bg-gray-600' : 'bg-white'}`}
                     >
-                      {shortcut.key}
-                    </kbd>
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-medium mb-1">{item.title}</h3>
+                      <p
+                        className={`text-sm ${tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
+                      >
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
 
               <div className="mt-6 text-center">
                 <p className={`text-sm ${tema === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                  Pressione '?' a qualquer momento para ver esta ajuda
+                  Clique no botão de ajuda a qualquer momento para ver este guia
                 </p>
               </div>
             </motion.div>
@@ -148,4 +180,4 @@ const KeyboardShortcuts: React.FC<Props> = ({ tema }) => {
   );
 };
 
-export default KeyboardShortcuts;
+export default HelpGuide;
