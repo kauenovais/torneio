@@ -125,3 +125,60 @@ vite.config.ts.timestamp-*
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Production
+project/dist
+project/build
+dist
+build
+
+# Misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs
+*.log
+
+# Editor directories and files
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# PWA
+dev-dist/
+**/public/sw.js
+**/public/workbox-*.js
+**/public/worker-*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
+**/public/worker-*.js.map
+
+# Keep these files
+!project/public/
+!project/src/
+!project/index.html
+!project/vite.config.ts
+!project/tsconfig.json
+!project/package.json
+!project/manifest.json
