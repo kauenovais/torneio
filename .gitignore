@@ -42,6 +42,8 @@ next-env.d.ts
 **/public/sw.js.map
 **/public/workbox-*.js.map
 **/public/worker-*.js.map
+dev-dist/
+generated-icons/
 
 # IDE
 .idea
@@ -55,7 +57,6 @@ next-env.d.ts
 
 # Vite
 vite.config.ts.timestamp-*
-dev-dist/
 
 # Keep these files
 !project/public/

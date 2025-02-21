@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" rx="8" fill="#3B82F6"/>
-  <path d="M8 10H14V12H8V10Z" fill="white"/>
-  <path d="M14 10H24V12H14V10Z" fill="white" fill-opacity="0.7"/>
-  <path d="M8 15H14V17H8V15Z" fill="white"/>
-  <path d="M14 15H24V17H14V15Z" fill="white" fill-opacity="0.7"/>
-  <path d="M8 20H14V22H8V20Z" fill="white"/>
-  <path d="M14 20H24V22H14V20Z" fill="white" fill-opacity="0.7"/>
-  <circle cx="14" cy="11" r="2" fill="#3B82F6" stroke="white" stroke-width="1.5"/>
-  <circle cx="14" cy="16" r="2" fill="#3B82F6" stroke="white" stroke-width="1.5"/>
-  <circle cx="14" cy="21" r="2" fill="#3B82F6" stroke="white" stroke-width="1.5"/>
-  <path d="M14 11L24 16M24 11L14 16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo -->
+  <rect width="512" height="512" rx="128" fill="#3B82F6"/>
+
+  <!-- Troféu -->
+  <path d="M256 96C179.2 96 128 147.2 128 224V288H176V224C176 173.6 211.2 144 256 144C300.8 144 336 173.6 336 224V288H384V224C384 147.2 332.8 96 256 96Z" fill="white"/>
+  <path d="M176 288H128V320C128 355.2 156.8 384 192 384H240V336H192C183.2 336 176 328.8 176 320V288Z" fill="white"/>
+  <path d="M336 288H384V320C384 355.2 355.2 384 320 384H272V336H320C328.8 336 336 328.8 336 320V288Z" fill="white"/>
+  <rect x="240" y="288" width="32" height="128" fill="white"/>
+  <rect x="192" y="384" width="128" height="32" fill="white"/>
+
+  <!-- Estrela -->
+  <path d="M256 64L276.4 105.6L320 112L288 144L296 188.8L256 168L216 188.8L224 144L192 112L235.6 105.6L256 64Z" fill="#FBBF24"/>
 </svg>

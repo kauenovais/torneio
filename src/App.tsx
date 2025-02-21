@@ -52,6 +52,7 @@ function App() {
   >('chaveamento');
   const [pwaInstallPrompt, setPwaInstallPrompt] = useState<any>(null);
   const [isPwaInstalled, setIsPwaInstalled] = useState(false);
+  const [showInstallButton, setShowInstallButton] = useState(false);
 
   useEffect(() => {
     // Carregar tema do localStorage
@@ -91,22 +92,37 @@ function App() {
       },
     });
 
-    // Verificar se o PWA está instalado
-    const checkPwaInstalled = () => {
-      if (window.matchMedia('(display-mode: standalone)').matches) {
-        setIsPwaInstalled(true);
-      }
-    };
-    checkPwaInstalled();
-
-    // Listener para o evento de instalação do PWA
-    window.addEventListener('beforeinstallprompt', e => {
+    // Melhorado o gerenciamento da instalação do PWA
+    const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setPwaInstallPrompt(e);
-    });
+      setShowInstallButton(true);
+    };
+
+    const handleAppInstalled = () => {
+      setIsPwaInstalled(true);
+      setShowInstallButton(false);
+      setPwaInstallPrompt(null);
+    };
+
+    // Verificar se o PWA está instalado
+    const checkPwaInstalled = () => {
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone ||
+        document.referrer.includes('android-app://');
+
+      setIsPwaInstalled(isStandalone);
+      setShowInstallButton(!isStandalone);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+    checkPwaInstalled();
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', () => {});
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
@@ -467,6 +483,19 @@ function App() {
     }
   };
 
+  const handleInstallClick = async () => {
+    if (!pwaInstallPrompt) return;
+
+    try {
+      const result = await pwaInstallPrompt.prompt();
+      console.log('Install prompt result:', result);
+      setPwaInstallPrompt(null);
+      setShowInstallButton(false);
+    } catch (error) {
+      console.error('Error installing PWA:', error);
+    }
+  };
+
   const renderSelecaoTipoTorneio = () => (
     <div className="max-w-4xl mx-auto animate-fade-in">
       <h2
@@ -560,6 +589,26 @@ function App() {
           </div>
 
           <div className="flex flex-wrap justify-center sm:justify-end items-center gap-4 w-full sm:w-auto">
+            {showInstallButton && !isPwaInstalled && (
+              <button
+                onClick={handleInstallClick}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Instalar App
+              </button>
+            )}
             <button
               onClick={toggleTema}
               className={`p-2 rounded-lg transition-colors ${

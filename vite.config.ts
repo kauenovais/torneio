@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
         name: 'Gerenciamento de Torneio',
@@ -18,6 +18,16 @@ export default defineConfig({
         scope: '/',
         display: 'standalone',
         background_color: '#ffffff',
+        categories: ['sports', 'productivity'],
+        shortcuts: [
+          {
+            name: 'Novo Torneio',
+            short_name: 'Novo',
+            description: 'Criar um novo torneio',
+            url: '/?action=new',
+            icons: [{ src: 'icons/icon-96x96.png', sizes: '96x96' }],
+          },
+        ],
         icons: [
           {
             src: 'icons/icon-72x72.png',
@@ -109,7 +119,9 @@ export default defineConfig({
         enabled: true,
         type: 'module',
       },
-      strategies: 'generateSW',
+      strategies: 'injectManifest',
+      injectRegister: 'auto',
+      minify: true,
     }),
   ],
   build: {
