@@ -17,15 +17,12 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
     const participante1 = participantesComBye[i];
     const participante2 = participantesComBye[i + 1];
 
-    // Se tiver apenas um participante, ele avança automaticamente
-    const vencedor = !participante2 ? participante1 : undefined;
-
     partidas.push({
       id: uuidv4(),
       rodada: 1,
       participante1,
       participante2,
-      vencedor,
+      vencedor: !participante2 ? participante1 : undefined,
       byeAutomatico: !participante2,
       placar1: undefined,
       placar2: undefined
@@ -39,19 +36,15 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
       const partidaAnterior1 = partidasRodadaAnterior[i];
       const partidaAnterior2 = partidasRodadaAnterior[i + 1];
 
-      // Se uma das partidas anteriores tem bye automático, o vencedor já é conhecido
       const participante1 = partidaAnterior1?.vencedor;
       const participante2 = partidaAnterior2?.vencedor;
-
-      // Se tiver apenas um participante, ele avança automaticamente
-      const vencedor = !participante2 ? participante1 : undefined;
 
       partidas.push({
         id: uuidv4(),
         rodada,
         participante1,
         participante2,
-        vencedor,
+        vencedor: !participante2 ? participante1 : undefined,
         byeAutomatico: !participante2,
         placar1: undefined,
         placar2: undefined,
@@ -66,13 +59,11 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
 }
 
 export function atualizarChaveamento(partidas: Partida[], partidaAtualizada: Partida): Partida[] {
-  // Encontra todas as partidas que dependem da partida atualizada
   const partidasAtualizadas = partidas.map(partida => {
     if (partida.id === partidaAtualizada.id) {
       return partidaAtualizada;
     }
 
-    // Se esta partida depende da partida atualizada
     if (partida.partidaAnterior1 === partidaAtualizada.id || partida.partidaAnterior2 === partidaAtualizada.id) {
       const partidaAnterior1 = partidas.find(p => p.id === partida.partidaAnterior1);
       const partidaAnterior2 = partidas.find(p => p.id === partida.partidaAnterior2);
@@ -80,14 +71,11 @@ export function atualizarChaveamento(partidas: Partida[], partidaAtualizada: Par
       const participante1 = partidaAnterior1?.vencedor;
       const participante2 = partidaAnterior2?.vencedor;
 
-      // Se tiver apenas um participante, ele avança automaticamente
-      const vencedor = !participante2 ? participante1 : undefined;
-
       return {
         ...partida,
         participante1,
         participante2,
-        vencedor,
+        vencedor: !participante2 ? participante1 : undefined,
         byeAutomatico: !participante2,
         placar1: undefined,
         placar2: undefined
@@ -97,13 +85,11 @@ export function atualizarChaveamento(partidas: Partida[], partidaAtualizada: Par
     return partida;
   });
 
-  // Verifica se alguma partida foi atualizada e precisa propagar as mudanças
   const algumaPropagacao = partidasAtualizadas.some((partida, index) => {
     const partidaOriginal = partidas[index];
     return JSON.stringify(partida) !== JSON.stringify(partidaOriginal);
   });
 
-  // Se houve alguma propagação, atualiza novamente para garantir que todas as mudanças foram propagadas
   if (algumaPropagacao) {
     return atualizarChaveamento(partidasAtualizadas, partidaAtualizada);
   }

@@ -15,8 +15,8 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
     return partidas.filter(p => p.rodada === rodada);
   };
 
-  const handleVencedor = (partida: Partida, participante: Participante | undefined) => {
-    if (partida.vencedor?.id === participante?.id) {
+  const handleVencedor = (partida: Partida, participante: Participante) => {
+    if (partida.vencedor?.id === participante.id) {
       onAtualizarPartida({ ...partida, vencedor: undefined, placar1: undefined, placar2: undefined });
       setPlacares(prev => {
         const newPlacares = { ...prev };
@@ -29,7 +29,6 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
   };
 
   const handlePlacarChange = (partidaId: string, campo: 'placar1' | 'placar2', valor: string) => {
-    // Atualiza o estado local dos placares
     setPlacares(prev => ({
       ...prev,
       [partidaId]: {
@@ -38,26 +37,22 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
       }
     }));
 
-    // Converte para números
     const placarAtual = placares[partidaId] || {};
     const placar1 = campo === 'placar1' ? Number(valor) : Number(placarAtual.placar1 || 0);
     const placar2 = campo === 'placar2' ? Number(valor) : Number(placarAtual.placar2 || 0);
 
-    // Encontra a partida
     const partida = partidas.find(p => p.id === partidaId);
     if (!partida) return;
 
-    // Determina o vencedor baseado nos placares
-    let vencedor: Participante | undefined = undefined;
+    let vencedor: Participante | undefined;
     if (!isNaN(placar1) && !isNaN(placar2)) {
-      if (placar1 > placar2) {
+      if (placar1 > placar2 && partida.participante1) {
         vencedor = partida.participante1;
-      } else if (placar2 > placar1) {
+      } else if (placar2 > placar1 && partida.participante2) {
         vencedor = partida.participante2;
       }
     }
 
-    // Atualiza a partida com os novos placares e vencedor
     onAtualizarPartida({
       ...partida,
       placar1: !isNaN(placar1) ? placar1 : undefined,

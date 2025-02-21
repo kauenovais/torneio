@@ -7,8 +7,8 @@ export interface Participante {
 export interface Partida {
   id: string;
   rodada: number;
-  participante1: Participante | undefined;
-  participante2: Participante | undefined;
+  participante1?: Participante;
+  participante2?: Participante;
   placar1?: number;
   placar2?: number;
   vencedor?: Participante;
