@@ -20,7 +20,6 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
   const maxRodada = Math.max(...partidas.map(p => p.rodada));
 
   useEffect(() => {
-    // Simula carregamento inicial
     setTimeout(() => setLoading(false), 800);
   }, []);
 
@@ -86,7 +85,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
 
   if (loading) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-4">
         {[...Array(Math.ceil(partidas.length / 2))].map((_, index) => (
           <div key={index} className="skeleton h-24 rounded-lg" />
         ))}
@@ -96,7 +95,6 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
 
   const renderPartida = (partida: Partida) => {
     const isPassagem = !partida.participante2;
-    const spacing = partida.rodada === 1 ? 'mb-4' : 'mb-8';
     const placaresDaPartida = placares[partida.id] || {};
 
     return (
@@ -104,10 +102,9 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
         key={partida.id}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className={`relative bg-white rounded-lg shadow-lg p-4 ${spacing} optimize-animation touch-feedback`}
-        role="group"
-        aria-label={`Partida ${partida.id}`}
+        className={`bg-white rounded-lg shadow-md p-4 mb-4 ${
+          partida.rodada === 1 ? 'ml-0' : `ml-${partida.rodada * 4}`
+        }`}
       >
         <div className="space-y-2">
           {[partida.participante1, partida.participante2].map((participante, index) => {
@@ -121,46 +118,23 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
             return (
               <div
                 key={participante?.id || `empty-${index}`}
-                className={`
-                  w-full p-3 rounded-lg transition-all flex items-center justify-between
-                  ${!participante ? 'bg-gray-100' : 'hover:bg-blue-50'}
-                  ${
-                    isVencedor
-                      ? 'bg-green-100 border-2 border-green-500'
-                      : 'border-2 border-transparent'
-                  }
-                  ${
-                    isUltimaRodada && isVencedor
-                      ? 'animate-pulse bg-yellow-100 border-yellow-500'
-                      : ''
-                  }
-                `}
-                role="group"
-                aria-label={
-                  participante
-                    ? `${participante.nome}${isVencedor ? ' (Vencedor)' : ''}`
-                    : 'Aguardando participante'
-                }
+                className={`flex items-center justify-between p-2 rounded ${
+                  !participante ? 'bg-gray-50' : 'hover:bg-blue-50'
+                } ${isVencedor ? 'bg-green-50 border border-green-500' : ''} ${
+                  isUltimaRodada && isVencedor ? 'animate-pulse bg-yellow-50' : ''
+                } transition-all`}
               >
-                <div className="flex-grow">
-                  <button
-                    onClick={() => participante && handleVencedor(partida, participante)}
-                    disabled={!participante}
-                    className={`font-medium ${
-                      isVencedor ? 'text-green-700' : 'text-gray-700'
-                    } w-full text-left focus-visible`}
-                    aria-label={
-                      participante
-                        ? `Definir ${participante.nome} como vencedor`
-                        : 'Aguardando participante'
-                    }
-                  >
-                    {participante?.nome || 'Aguardando...'}
-                  </button>
-                </div>
+                <button
+                  onClick={() => participante && handleVencedor(partida, participante)}
+                  disabled={!participante}
+                  className={`flex-grow text-left font-medium ${
+                    isVencedor ? 'text-green-700' : 'text-gray-700'
+                  }`}
+                >
+                  {participante?.nome || 'Aguardando...'}
+                </button>
                 {participante && !isPassagem && (
-                  <div className="flex items-center ml-2">
-                    <label className="sr-only">{`Placar de ${participante.nome}`}</label>
+                  <div className="flex items-center space-x-2">
                     <input
                       type="number"
                       min="0"
@@ -172,9 +146,8 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
                           e.target.value
                         )
                       }
-                      className="w-16 px-2 py-1 text-sm border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent focus-visible"
+                      className="w-16 px-2 py-1 text-sm border rounded focus:ring-2 focus:ring-blue-500"
                       placeholder="0"
-                      aria-label={`Placar de ${participante.nome}`}
                     />
                   </div>
                 )}
@@ -184,7 +157,6 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
                     className="h-5 w-5 text-green-600 ml-2"
                     viewBox="0 0 20 20"
                     fill="currentColor"
-                    aria-hidden="true"
                   >
                     <path
                       fillRule="evenodd"
@@ -209,15 +181,18 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className={`feedback-${feedback.type} fixed top-4 right-4 z-50`}
-            role="alert"
+            className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-lg ${
+              feedback.type === 'success'
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800'
+            }`}
           >
             {feedback.message}
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="space-y-8" role="region" aria-label="Chaveamento do torneio">
+      <div className="flex flex-col space-y-4">
         {partidas.map(partida => renderPartida(partida))}
       </div>
     </div>
