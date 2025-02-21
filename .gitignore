@@ -33,4 +33,38 @@ yarn-error.log*
 *.sw?
 
 # Vercel
-.vercel 
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# Vite
+vite.config.ts.timestamp-*
+dev-dist/
+
+# PWA
+**/public/sw.js
+**/public/workbox-*.js
+**/public/worker-*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
+**/public/worker-*.js.map
+
+# Keep these files
+!project/public/
+!project/src/
+!project/index.html
+!project/vite.config.ts
+!project/tsconfig.json
+!project/tsconfig.node.json
+!project/package.json
+!project/package-lock.json
+!project/postcss.config.js
+!project/tailwind.config.js
+!project/.prettierrc
+!project/.editorconfig
+!project/.eslintrc.cjs
+!project/README.md
+!project/LICENSE
+!project/CONTRIBUTING.md
+!project/vercel.json 
