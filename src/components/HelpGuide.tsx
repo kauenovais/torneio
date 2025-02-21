@@ -9,6 +9,7 @@ interface GuideItem {
   title: string;
   description: string;
   icon: JSX.Element;
+  tips: string[];
 }
 
 const HelpGuide: React.FC<Props> = ({ tema }) => {
@@ -17,7 +18,7 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
   const guideItems: GuideItem[] = [
     {
       title: 'Criar Torneio',
-      description: 'Escolha entre torneio individual ou em equipes e adicione os participantes',
+      description: 'Como começar um novo torneio',
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -32,10 +33,16 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
           />
         </svg>
       ),
+      tips: [
+        'Escolha entre torneio individual ou em equipes',
+        'Digite o nome do torneio',
+        'Adicione participantes um por um ou cole uma lista',
+        'Clique em "Gerar Chaveamento" quando finalizar',
+      ],
     },
     {
       title: 'Gerenciar Partidas',
-      description: 'Atualize os resultados das partidas e acompanhe o progresso do torneio',
+      description: 'Como atualizar e acompanhar as partidas',
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -46,10 +53,16 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
           <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
         </svg>
       ),
+      tips: [
+        'Clique em uma partida para inserir o placar',
+        'O sistema atualiza automaticamente o chaveamento',
+        'Acompanhe o progresso em tempo real',
+        'Veja estatísticas detalhadas do torneio',
+      ],
     },
     {
       title: 'Compartilhar',
-      description: 'Compartilhe o link do torneio com outros participantes ou espectadores',
+      description: 'Como compartilhar o torneio',
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -60,10 +73,16 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
           <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
         </svg>
       ),
+      tips: [
+        'Use o botão "Compartilhar" no topo da página',
+        'Copie o link do torneio para compartilhar',
+        'Exporte o torneio para backup',
+        'Importe um torneio existente',
+      ],
     },
     {
-      title: 'Estatísticas',
-      description: 'Visualize estatísticas detalhadas do torneio e desempenho dos participantes',
+      title: 'Personalização',
+      description: 'Como personalizar seu torneio',
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -71,10 +90,19 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
           viewBox="0 0 20 20"
           fill="currentColor"
         >
-          <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
-          <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+          <path
+            fillRule="evenodd"
+            d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+            clipRule="evenodd"
+          />
         </svg>
       ),
+      tips: [
+        'Alterne entre tema claro e escuro',
+        'Configure pontuações e regras',
+        'Adicione um logo personalizado',
+        'Gerencie administradores do torneio',
+      ],
     },
   ];
 
@@ -115,12 +143,12 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className={`w-full max-w-md rounded-xl p-6 shadow-xl ${
+              className={`w-full max-w-2xl rounded-xl p-6 shadow-xl ${
                 tema === 'dark' ? 'bg-gray-800' : 'bg-white'
               }`}
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">Como Usar</h2>
+                <h2 className="text-xl font-bold">Como Usar o Sistema</h2>
                 <button
                   onClick={() => setShowHelp(false)}
                   className={`p-2 rounded-lg transition-colors ${
@@ -142,27 +170,42 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {guideItems.map(item => (
                   <div
                     key={item.title}
-                    className={`flex items-start space-x-4 p-4 rounded-lg ${
-                      tema === 'dark' ? 'bg-gray-700' : 'bg-gray-50'
-                    }`}
+                    className={`p-4 rounded-lg ${tema === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}
                   >
-                    <div
-                      className={`p-2 rounded-lg ${tema === 'dark' ? 'bg-gray-600' : 'bg-white'}`}
-                    >
-                      {item.icon}
-                    </div>
-                    <div>
-                      <h3 className="font-medium mb-1">{item.title}</h3>
-                      <p
-                        className={`text-sm ${tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div
+                        className={`p-2 rounded-lg ${tema === 'dark' ? 'bg-gray-600' : 'bg-white'}`}
                       >
-                        {item.description}
-                      </p>
+                        {item.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-lg">{item.title}</h3>
+                        <p
+                          className={`text-sm ${
+                            tema === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                          }`}
+                        >
+                          {item.description}
+                        </p>
+                      </div>
                     </div>
+                    <ul className="space-y-2 ml-4">
+                      {item.tips.map((tip, index) => (
+                        <li
+                          key={index}
+                          className={`flex items-center gap-2 text-sm ${
+                            tema === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                          }`}
+                        >
+                          <span className="text-blue-500">•</span>
+                          {tip}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 ))}
               </div>

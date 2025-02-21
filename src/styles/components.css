@@ -27,30 +27,12 @@
   }
 }
 
-/* Keyboard Shortcuts */
-.shortcut-key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 6px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.shortcut-key:hover {
-  transform: translateY(-1px);
-}
-
 /* Feedback Button */
 .feedback-button {
   position: fixed;
   bottom: 1rem;
   right: 1rem;
+  transform: scale(1);
   transition: transform 0.2s ease;
 }
 
@@ -64,11 +46,12 @@
   bottom: 1rem;
   left: 1rem;
   max-width: 300px;
+  transform: translateY(0);
   transition: transform 0.3s ease;
 }
 
 .tip-container:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
 }
 
 /* Shared Animations */

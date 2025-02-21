@@ -22,9 +22,8 @@ import './styles/animations.css';
 import { registerSW } from 'virtual:pwa-register';
 import Onboarding from './components/Onboarding';
 import Feedback from './components/Feedback';
-import TipsAndShortcuts from './components/TipsAndShortcuts';
 import Tutorial from './components/Tutorial';
-import HelpGuide from './components/KeyboardShortcuts';
+import HelpGuide from './components/HelpGuide';
 
 // URL base da aplicação
 const BASE_URL =
@@ -59,7 +58,6 @@ function App() {
   const [isPwaInstalled, setIsPwaInstalled] = useState(false);
   const [showInstallButton, setShowInstallButton] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(true);
-  const [showTips, setShowTips] = useState(true);
   const [showTutorial, setShowTutorial] = useState(true);
 
   useEffect(() => {
@@ -135,12 +133,6 @@ function App() {
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
     if (hasSeenOnboarding) {
       setShowOnboarding(false);
-    }
-
-    // Verificar preferência de dicas
-    const tipsPreference = localStorage.getItem('showTips');
-    if (tipsPreference === 'false') {
-      setShowTips(false);
     }
 
     return () => {
@@ -974,7 +966,6 @@ function App() {
         {showTutorial && <Tutorial onComplete={() => setShowTutorial(false)} tema={tema} />}
         <HelpGuide tema={tema} />
         <Feedback tema={tema} />
-        {showTips && <TipsAndShortcuts tema={tema} />}
       </div>
     </div>
   );
