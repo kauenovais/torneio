@@ -1,7 +1,8 @@
 {
   "framework": "vite",
-  "buildCommand": "npm install --include=dev && npm run build",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/(.*)",
@@ -37,6 +38,5 @@
     }
   ],
   "cleanUrls": true,
-  "trailingSlash": false,
-  "installCommand": "npm install --include=dev"
+  "trailingSlash": false
 }
