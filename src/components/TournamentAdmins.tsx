@@ -64,10 +64,10 @@ const GerenciarAdministradores: React.FC<Props> = ({
               type="text"
               value={novoAdmin.nome}
               onChange={(e) => setNovoAdmin({ ...novoAdmin, nome: e.target.value })}
-              className={`w-full px-4 py-2 rounded-lg border ${
+              className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                 tema === 'dark'
-                  ? 'bg-gray-700 border-gray-600'
-                  : 'bg-white border-gray-300'
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
               }`}
               placeholder="Nome do administrador"
             />
@@ -78,10 +78,10 @@ const GerenciarAdministradores: React.FC<Props> = ({
               type="email"
               value={novoAdmin.email}
               onChange={(e) => setNovoAdmin({ ...novoAdmin, email: e.target.value })}
-              className={`w-full px-4 py-2 rounded-lg border ${
+              className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                 tema === 'dark'
-                  ? 'bg-gray-700 border-gray-600'
-                  : 'bg-white border-gray-300'
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
               }`}
               placeholder="email@exemplo.com"
             />

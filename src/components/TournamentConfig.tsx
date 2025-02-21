@@ -13,7 +13,7 @@ const configPadrao: ConfiguracaoTorneio = {
   formatoChaveamento: 'simples',
   permitirEmpate: false,
   pontosPorVitoria: 3,
-  pontosPorEmpate: 1
+  pontosPorEmpate: 1,
 };
 
 const ConfiguracaoTorneio: React.FC<Props> = ({ onSave, configInicial, tema }) => {
@@ -39,9 +39,7 @@ const ConfiguracaoTorneio: React.FC<Props> = ({ onSave, configInicial, tema }) =
   };
 
   return (
-    <div className={`rounded-xl shadow-lg p-6 ${
-      tema === 'dark' ? 'bg-gray-800' : 'bg-white'
-    }`}>
+    <div className={`rounded-xl shadow-lg p-6 ${tema === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
       <h3 className="text-xl font-semibold mb-4">Configurações do Torneio</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
@@ -51,7 +49,7 @@ const ConfiguracaoTorneio: React.FC<Props> = ({ onSave, configInicial, tema }) =
             <input
               type="color"
               value={config.corPrimaria}
-              onChange={(e) => setConfig({ ...config, corPrimaria: e.target.value })}
+              onChange={e => setConfig({ ...config, corPrimaria: e.target.value })}
               className="w-full h-10 rounded-lg cursor-pointer"
             />
           </div>
@@ -60,7 +58,7 @@ const ConfiguracaoTorneio: React.FC<Props> = ({ onSave, configInicial, tema }) =
             <input
               type="color"
               value={config.corSecundaria}
-              onChange={(e) => setConfig({ ...config, corSecundaria: e.target.value })}
+              onChange={e => setConfig({ ...config, corSecundaria: e.target.value })}
               className="w-full h-10 rounded-lg cursor-pointer"
             />
           </div>
@@ -97,11 +95,14 @@ const ConfiguracaoTorneio: React.FC<Props> = ({ onSave, configInicial, tema }) =
             <label className="block text-sm font-medium mb-1">Formato do Chaveamento</label>
             <select
               value={config.formatoChaveamento}
-              onChange={(e) => setConfig({ ...config, formatoChaveamento: e.target.value as 'simples' | 'duplo' | 'grupos' })}
+              onChange={e =>
+                setConfig({
+                  ...config,
+                  formatoChaveamento: e.target.value as 'simples' | 'duplo' | 'grupos',
+                })
+              }
               className={`w-full px-4 py-2 rounded-lg border ${
-                tema === 'dark'
-                  ? 'bg-gray-700 border-gray-600'
-                  : 'bg-white border-gray-300'
+                tema === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
               }`}
             >
               <option value="simples">Eliminação Simples</option>
@@ -118,7 +119,7 @@ const ConfiguracaoTorneio: React.FC<Props> = ({ onSave, configInicial, tema }) =
                 <input
                   type="checkbox"
                   checked={config.permitirEmpate}
-                  onChange={(e) => setConfig({ ...config, permitirEmpate: e.target.checked })}
+                  onChange={e => setConfig({ ...config, permitirEmpate: e.target.checked })}
                   className="rounded"
                 />
                 <span>Permitir Empates</span>
@@ -132,12 +133,10 @@ const ConfiguracaoTorneio: React.FC<Props> = ({ onSave, configInicial, tema }) =
             <input
               type="number"
               value={config.pontosPorVitoria}
-              onChange={(e) => setConfig({ ...config, pontosPorVitoria: Number(e.target.value) })}
+              onChange={e => setConfig({ ...config, pontosPorVitoria: Number(e.target.value) })}
               min="1"
               className={`w-full px-4 py-2 rounded-lg border ${
-                tema === 'dark'
-                  ? 'bg-gray-700 border-gray-600'
-                  : 'bg-white border-gray-300'
+                tema === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
               }`}
             />
           </div>
@@ -147,29 +146,31 @@ const ConfiguracaoTorneio: React.FC<Props> = ({ onSave, configInicial, tema }) =
             <input
               type="number"
               value={config.pontosPorEmpate}
-              onChange={(e) => setConfig({ ...config, pontosPorEmpate: Number(e.target.value) })}
+              onChange={e => setConfig({ ...config, pontosPorEmpate: Number(e.target.value) })}
               min="0"
               className={`w-full px-4 py-2 rounded-lg border ${
-                tema === 'dark'
-                  ? 'bg-gray-700 border-gray-600'
-                  : 'bg-white border-gray-300'
+                tema === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
               }`}
             />
           </div>
 
           {/* Tempo Limite */}
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-1">Tempo Limite por Partida (minutos)</label>
+            <label className="block text-sm font-medium mb-1">
+              Tempo Limite por Partida (minutos)
+            </label>
             <input
               type="number"
               value={config.tempoLimitePorPartida || ''}
-              onChange={(e) => setConfig({ ...config, tempoLimitePorPartida: Number(e.target.value) || undefined })}
+              onChange={e =>
+                setConfig({ ...config, tempoLimitePorPartida: Number(e.target.value) || undefined })
+              }
               min="0"
               placeholder="Sem limite"
-              className={`w-full px-4 py-2 rounded-lg border ${
+              className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                 tema === 'dark'
-                  ? 'bg-gray-700 border-gray-600'
-                  : 'bg-white border-gray-300'
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
               }`}
             />
           </div>
