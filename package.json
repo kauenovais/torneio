@@ -7,8 +7,7 @@
     "build": "cd project && npm install && npm run build",
     "start": "cd project && npm run preview",
     "lint": "cd project && npm run lint",
-    "preview": "cd project && npm run preview",
-    "postinstall": "cd project && npm install"
+    "preview": "cd project && npm run preview"
   },
   "engines": {
     "node": ">=18.0.0",
