@@ -7,22 +7,43 @@ node_modules
 coverage
 
 # Production
-project/dist
-project/build
+dist
+build
+.vercel
 
 # Misc
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+*.pem
 
-# Logs
+# Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Editor directories and files
+# Local env files
+.env*.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# PWA
+**/public/sw.js
+**/public/workbox-*.js
+**/public/worker-*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
+**/public/worker-*.js.map
+
+# IDE
 .idea
 .vscode/*
 !.vscode/extensions.json
@@ -32,23 +53,9 @@ yarn-error.log*
 *.sln
 *.sw?
 
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-
 # Vite
 vite.config.ts.timestamp-*
 dev-dist/
-
-# PWA
-**/public/sw.js
-**/public/workbox-*.js
-**/public/worker-*.js
-**/public/sw.js.map
-**/public/workbox-*.js.map
-**/public/worker-*.js.map
 
 # Keep these files
 !project/public/
@@ -67,4 +74,4 @@ dev-dist/
 !project/README.md
 !project/LICENSE
 !project/CONTRIBUTING.md
-!project/vercel.json 
+!project/vercel.json

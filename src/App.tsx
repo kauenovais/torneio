@@ -72,6 +72,42 @@ function App() {
       setMostrarChaveamento(true);
       setTorneioSalvo(true);
     }
+
+    // Registrar service worker para PWA
+    const updateSW = registerSW({
+      onNeedRefresh() {
+        if (confirm('Nova versão disponível. Deseja atualizar?')) {
+          updateSW(true);
+        }
+      },
+      onOfflineReady() {
+        console.log('Aplicativo pronto para uso offline');
+      },
+      onRegistered(r) {
+        console.log('Service Worker registrado');
+      },
+      onRegisterError(error) {
+        console.error('Erro ao registrar Service Worker:', error);
+      },
+    });
+
+    // Verificar se o PWA está instalado
+    const checkPwaInstalled = () => {
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        setIsPwaInstalled(true);
+      }
+    };
+    checkPwaInstalled();
+
+    // Listener para o evento de instalação do PWA
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      setPwaInstallPrompt(e);
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', () => {});
+    };
   }, []);
 
   const toggleTema = () => {
