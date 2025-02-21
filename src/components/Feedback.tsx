@@ -5,6 +5,14 @@ interface Props {
   tema: 'light' | 'dark';
 }
 
+interface FeedbackData {
+  type: 'bug' | 'feature' | 'other';
+  message: string;
+  email: string;
+  userAgent: string;
+  timestamp: string;
+}
+
 const Feedback: React.FC<Props> = ({ tema }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [feedbackType, setFeedbackType] = useState<'bug' | 'feature' | 'other' | null>(null);
@@ -17,25 +25,51 @@ const Feedback: React.FC<Props> = ({ tema }) => {
     e.preventDefault();
     setIsSending(true);
 
-    // Simular envio do feedback
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Aqui você implementaria a lógica real de envio do feedback
-    console.log({
-      type: feedbackType,
+    const feedbackData: FeedbackData = {
+      type: feedbackType || 'other',
       message,
       email,
-    });
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+    };
 
-    setIsSending(false);
-    setShowSuccess(true);
-    setTimeout(() => {
-      setIsOpen(false);
-      setShowSuccess(false);
-      setFeedbackType(null);
-      setMessage('');
-      setEmail('');
-    }, 2000);
+    try {
+      // Configurar o email para envio
+      const emailSubject = `[${feedbackData.type.toUpperCase()}] Novo Feedback do Sistema de Torneios`;
+      const emailBody = `
+Tipo: ${feedbackData.type}
+Mensagem: ${feedbackData.message}
+Email do Usuário: ${feedbackData.email || 'Não informado'}
+User Agent: ${feedbackData.userAgent}
+Data/Hora: ${new Date(feedbackData.timestamp).toLocaleString('pt-BR')}
+      `.trim();
+
+      // Criar o link mailto
+      const mailtoLink = `mailto:agencyroyalhawk@gmail.com?subject=${encodeURIComponent(
+        emailSubject
+      )}&body=${encodeURIComponent(emailBody)}`;
+
+      // Abrir o cliente de email padrão
+      window.location.href = mailtoLink;
+
+      // Simular um pequeno delay para melhor UX
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      setIsSending(false);
+      setShowSuccess(true);
+
+      setTimeout(() => {
+        setIsOpen(false);
+        setShowSuccess(false);
+        setFeedbackType(null);
+        setMessage('');
+        setEmail('');
+      }, 2000);
+    } catch (error) {
+      console.error('Erro ao enviar feedback:', error);
+      setIsSending(false);
+      alert('Erro ao enviar feedback. Por favor, tente novamente.');
+    }
   };
 
   return (
@@ -156,13 +190,13 @@ const Feedback: React.FC<Props> = ({ tema }) => {
                         tema === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                       }`}
                       rows={4}
-                      placeholder="Descreva seu feedback..."
+                      placeholder="Descreva o bug ou sua sugestão em detalhes..."
                       required
                     />
                   </div>
 
                   <div className="mb-6">
-                    <label className="mb-2 block text-sm font-medium">Email (opcional)</label>
+                    <label className="mb-2 block text-sm font-medium">Seu Email (opcional)</label>
                     <input
                       type="email"
                       value={email}
@@ -170,7 +204,7 @@ const Feedback: React.FC<Props> = ({ tema }) => {
                       className={`w-full rounded-lg p-3 ${
                         tema === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                       }`}
-                      placeholder="seu@email.com"
+                      placeholder="Para receber atualizações sobre seu feedback"
                     />
                   </div>
 
