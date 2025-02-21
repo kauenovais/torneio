@@ -1,65 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Partida, Participante } from '../types';
+import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/animations.css';
 
 interface Props {
   partidas: Partida[];
   onAtualizarPartida: (partida: Partida) => void;
+  tema?: 'light' | 'dark';
 }
 
-const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
+const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'light' }) => {
+  const [placares, setPlacares] = useState<Record<string, { placar1?: number; placar2?: number }>>({});
+  const [loading, setLoading] = useState(true);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const maxRodada = Math.max(...partidas.map(p => p.rodada));
-  const [placares, setPlacares] = useState<{ [key: string]: { placar1?: string; placar2?: string } }>({});
 
-  const getPartidasPorRodada = (rodada: number) => {
-    return partidas.filter(p => p.rodada === rodada);
+  useEffect(() => {
+    // Simula carregamento inicial
+    setTimeout(() => setLoading(false), 800);
+  }, []);
+
+  const showFeedback = (type: 'success' | 'error', message: string) => {
+    setFeedback({ type, message });
+    setTimeout(() => setFeedback(null), 3000);
   };
 
-  const handleVencedor = (partida: Partida, participante: Participante) => {
-    if (partida.vencedor?.id === participante.id) {
-      onAtualizarPartida({ ...partida, vencedor: undefined, placar1: undefined, placar2: undefined });
-      setPlacares(prev => {
-        const newPlacares = { ...prev };
-        delete newPlacares[partida.id];
-        return newPlacares;
-      });
-    } else {
-      onAtualizarPartida({ ...partida, vencedor: participante });
+  const handleVencedor = async (partida: Partida, vencedor: Participante) => {
+    try {
+      setLoading(true);
+      const partidaAtualizada = { ...partida, vencedor };
+      await onAtualizarPartida(partidaAtualizada);
+      showFeedback('success', `${vencedor.nome} definido como vencedor!`);
+    } catch (error) {
+      showFeedback('error', 'Erro ao definir vencedor. Tente novamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handlePlacarChange = (partidaId: string, campo: 'placar1' | 'placar2', valor: string) => {
+  const handlePlacarChange = (
+    partidaId: string,
+    campo: 'placar1' | 'placar2',
+    valor: string
+  ) => {
+    const numeroValor = parseInt(valor, 10);
+    if (isNaN(numeroValor) || numeroValor < 0) return;
+
     setPlacares(prev => ({
       ...prev,
       [partidaId]: {
         ...prev[partidaId],
-        [campo]: valor
+        [campo]: numeroValor
       }
     }));
-
-    const placarAtual = placares[partidaId] || {};
-    const placar1 = campo === 'placar1' ? Number(valor) : Number(placarAtual.placar1 || 0);
-    const placar2 = campo === 'placar2' ? Number(valor) : Number(placarAtual.placar2 || 0);
 
     const partida = partidas.find(p => p.id === partidaId);
     if (!partida) return;
 
-    let vencedor: Participante | undefined;
-    if (!isNaN(placar1) && !isNaN(placar2)) {
-      if (placar1 > placar2 && partida.participante1) {
-        vencedor = partida.participante1;
-      } else if (placar2 > placar1 && partida.participante2) {
-        vencedor = partida.participante2;
-      }
-    }
+    const placaresAtuais = {
+      ...placares[partidaId],
+      [campo]: numeroValor
+    };
 
-    onAtualizarPartida({
-      ...partida,
-      placar1: !isNaN(placar1) ? placar1 : undefined,
-      placar2: !isNaN(placar2) ? placar2 : undefined,
-      vencedor
-    });
+    if (typeof placaresAtuais.placar1 === 'number' && typeof placaresAtuais.placar2 === 'number') {
+      const partidaAtualizada = {
+        ...partida,
+        placar1: placaresAtuais.placar1,
+        placar2: placaresAtuais.placar2,
+        vencedor: placaresAtuais.placar1 > placaresAtuais.placar2
+          ? partida.participante1
+          : placaresAtuais.placar1 < placaresAtuais.placar2
+          ? partida.participante2
+          : undefined
+      };
+
+      onAtualizarPartida(partidaAtualizada);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        {[...Array(Math.ceil(partidas.length / 2))].map((_, index) => (
+          <div key={index} className="skeleton h-24 rounded-lg" />
+        ))}
+      </div>
+    );
+  }
 
   const renderPartida = (partida: Partida) => {
     const isPassagem = !partida.participante2;
@@ -67,9 +94,14 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
     const placaresDaPartida = placares[partida.id] || {};
 
     return (
-      <div
+      <motion.div
         key={partida.id}
-        className={`relative bg-white rounded-lg shadow-lg p-4 ${spacing} animate-scale-in hover-scale transition-all`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className={`relative bg-white rounded-lg shadow-lg p-4 ${spacing} optimize-animation touch-feedback`}
+        role="group"
+        aria-label={`Partida ${partida.id}`}
       >
         <div className="space-y-2">
           {[partida.participante1, partida.participante2].map((participante, index) => {
@@ -89,73 +121,81 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
                   ${isVencedor ? 'bg-green-100 border-2 border-green-500' : 'border-2 border-transparent'}
                   ${isUltimaRodada && isVencedor ? 'animate-pulse bg-yellow-100 border-yellow-500' : ''}
                 `}
+                role="group"
+                aria-label={participante ? `${participante.nome}${isVencedor ? ' (Vencedor)' : ''}` : 'Aguardando participante'}
               >
                 <div className="flex-grow">
                   <button
                     onClick={() => participante && handleVencedor(partida, participante)}
                     disabled={!participante}
-                    className={`font-medium ${isVencedor ? 'text-green-700' : 'text-gray-700'} w-full text-left`}
+                    className={`font-medium ${isVencedor ? 'text-green-700' : 'text-gray-700'} w-full text-left focus-visible`}
+                    aria-label={participante ? `Definir ${participante.nome} como vencedor` : 'Aguardando participante'}
                   >
                     {participante?.nome || 'Aguardando...'}
                   </button>
                 </div>
                 {participante && !isPassagem && (
                   <div className="flex items-center ml-2">
+                    <label className="sr-only">
+                      {`Placar de ${participante.nome}`}
+                    </label>
                     <input
                       type="number"
                       min="0"
                       value={placarAtual ?? placarFinal ?? ''}
                       onChange={(e) => handlePlacarChange(partida.id, index === 0 ? 'placar1' : 'placar2', e.target.value)}
-                      className="w-16 px-2 py-1 text-sm border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-16 px-2 py-1 text-sm border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent focus-visible"
                       placeholder="0"
+                      aria-label={`Placar de ${participante.nome}`}
                     />
                   </div>
                 )}
                 {isVencedor && (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-green-600 ml-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 )}
               </div>
             );
           })}
         </div>
-
-        {isPassagem && (
-          <div className="absolute -right-6 top-1/2 transform -translate-y-1/2">
-            <div className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-              Passagem Automática
-            </div>
-          </div>
-        )}
-      </div>
+      </motion.div>
     );
   };
 
   return (
-    <div className="flex gap-8 overflow-x-auto pb-8">
-      {Array.from({ length: maxRodada }, (_, i) => i + 1).map((rodada) => {
-        const partidasRodada = getPartidasPorRodada(rodada);
-        const isUltimaRodada = rodada === maxRodada;
-
-        return (
-          <div
-            key={rodada}
-            className={`flex-shrink-0 w-64 animate-fade-in`}
-            style={{ animationDelay: `${rodada * 0.1}s` }}
+    <div className="relative">
+      <AnimatePresence>
+        {feedback && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`feedback-${feedback.type} fixed top-4 right-4 z-50`}
+            role="alert"
           >
-            <div className={`
-              text-center mb-4 p-2 rounded-lg
-              ${isUltimaRodada ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}
-            `}>
-              {isUltimaRodada ? 'Final' : `${rodada}ª Rodada`}
-            </div>
-            <div className="space-y-8">
-              {partidasRodada.map(renderPartida)}
-            </div>
-          </div>
-        );
-      })}
+            {feedback.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div
+        className="space-y-8"
+        role="region"
+        aria-label="Chaveamento do torneio"
+      >
+        {partidas.map(partida => renderPartida(partida))}
+      </div>
     </div>
   );
 };

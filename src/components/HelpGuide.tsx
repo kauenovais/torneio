@@ -14,9 +14,14 @@ interface GuideItem {
 
 const HelpGuide: React.FC<Props> = ({ tema }) => {
   const [showHelp, setShowHelp] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Fechar ao clicar fora do modal
+  useEffect(() => {
+    // Simula carregamento inicial
+    setTimeout(() => setIsLoading(false), 500);
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -24,12 +29,20 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
       }
     };
 
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowHelp(false);
+      }
+    };
+
     if (showHelp) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
     };
   }, [showHelp]);
 
@@ -43,6 +56,7 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
           className="h-5 w-5"
           viewBox="0 0 20 20"
           fill="currentColor"
+          aria-hidden="true"
         >
           <path
             fillRule="evenodd"
@@ -124,14 +138,28 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <button
+        className={`fixed bottom-4 right-20 rounded-full p-3 shadow-lg transition-colors skeleton ${
+          tema === 'dark' ? 'bg-gray-800' : 'bg-white'
+        }`}
+        aria-label="Carregando guia de ajuda"
+      >
+        <div className="h-6 w-6" />
+      </button>
+    );
+  }
+
   return (
     <>
       <button
         onClick={() => setShowHelp(true)}
-        className={`fixed bottom-4 right-20 rounded-full p-3 shadow-lg transition-colors ${
+        className={`fixed bottom-4 right-20 rounded-full p-3 shadow-lg transition-colors touch-feedback focus-visible ${
           tema === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
         }`}
-        title="Abrir guia de ajuda"
+        aria-label="Abrir guia de ajuda"
+        aria-expanded={showHelp}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -139,6 +167,7 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -157,29 +186,36 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black bg-opacity-50 p-4 sm:p-6"
             style={{ paddingTop: '5vh', paddingBottom: '5vh' }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="help-guide-title"
           >
             <motion.div
               ref={modalRef}
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className={`w-full max-w-2xl rounded-xl p-6 shadow-xl ${
+              className={`w-full max-w-2xl rounded-xl p-6 shadow-xl optimize-animation ${
                 tema === 'dark' ? 'bg-gray-800' : 'bg-white'
               }`}
             >
               <div className="sticky top-0 flex items-center justify-between bg-inherit pb-4">
-                <h2 className="text-xl font-bold">Como Usar o Sistema</h2>
+                <h2 id="help-guide-title" className="text-xl font-bold">
+                  Como Usar o Sistema
+                </h2>
                 <button
                   onClick={() => setShowHelp(false)}
-                  className={`rounded-lg p-2 transition-colors ${
+                  className={`rounded-lg p-2 transition-colors touch-feedback focus-visible ${
                     tema === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
+                  aria-label="Fechar guia de ajuda"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
                     viewBox="0 0 20 20"
                     fill="currentColor"
+                    aria-hidden="true"
                   >
                     <path
                       fillRule="evenodd"
@@ -192,10 +228,12 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
 
               <div className="max-h-[70vh] overflow-y-auto pr-2">
                 <div className="space-y-6">
-                  {guideItems.map(item => (
+                  {guideItems.map((item, index) => (
                     <div
                       key={item.title}
                       className={`rounded-lg p-4 ${tema === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}
+                      role="region"
+                      aria-labelledby={`guide-title-${index}`}
                     >
                       <div className="flex items-center gap-3 mb-3">
                         <div
@@ -206,7 +244,9 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
                           {item.icon}
                         </div>
                         <div>
-                          <h3 className="text-lg font-medium">{item.title}</h3>
+                          <h3 id={`guide-title-${index}`} className="text-lg font-medium">
+                            {item.title}
+                          </h3>
                           <p
                             className={`text-sm ${
                               tema === 'dark' ? 'text-gray-300' : 'text-gray-600'
@@ -216,15 +256,17 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
                           </p>
                         </div>
                       </div>
-                      <ul className="ml-4 space-y-2">
-                        {item.tips.map((tip, index) => (
+                      <ul className="ml-4 space-y-2" role="list">
+                        {item.tips.map((tip, tipIndex) => (
                           <li
-                            key={index}
+                            key={tipIndex}
                             className={`flex items-center gap-2 text-sm ${
                               tema === 'dark' ? 'text-gray-300' : 'text-gray-600'
                             }`}
                           >
-                            <span className="text-blue-500">•</span>
+                            <span className="text-blue-500" aria-hidden="true">
+                              •
+                            </span>
                             {tip}
                           </li>
                         ))}
@@ -236,7 +278,7 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
 
               <div className="mt-6 text-center">
                 <p className={`text-sm ${tema === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                  Clique no botão de ajuda a qualquer momento para ver este guia
+                  Pressione ESC ou clique fora para fechar este guia
                 </p>
               </div>
             </motion.div>

@@ -5,10 +5,14 @@ node_modules
 
 # Testing
 coverage
+/coverage
+*.lcov
+.nyc_output
 
 # Production
 /dist
 /build
+/out
 
 # Environment Variables
 .env
@@ -18,10 +22,21 @@ coverage
 .env.production.local
 
 # Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# Cache and Temporary files
+.cache
+.temp
+.tmp
+.eslintcache
+.stylelintcache
+*.cache
+.parcel-cache
 
 # TypeScript
 *.tsbuildinfo
@@ -31,11 +46,16 @@ next-env.d.ts
 .idea
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.project
+.classpath
+*.launch
+.settings/
 
 # Vite
 vite.config.ts.timestamp-*
@@ -44,6 +64,33 @@ vite.config.ts.timestamp-*
 .vercel
 .next
 
-# Misc
+# PWA / Service Workers
+**/public/sw.js
+**/public/workbox-*.js
+**/public/worker-*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
+**/public/worker-*.js.map
+
+# Build artifacts
+stats.html
+stats.json
+bundle-analysis.html
+.bundle-analysis
+.size-snapshot.json
+
+# OS specific
 .DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 *.pem
+
+# Backup & temporary files
+*.bak
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
