@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Props {
@@ -14,6 +14,24 @@ interface GuideItem {
 
 const HelpGuide: React.FC<Props> = ({ tema }) => {
   const [showHelp, setShowHelp] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Fechar ao clicar fora do modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        setShowHelp(false);
+      }
+    };
+
+    if (showHelp) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showHelp]);
 
   const guideItems: GuideItem[] = [
     {
@@ -137,9 +155,11 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black bg-opacity-50 p-4 sm:p-6"
+            style={{ paddingTop: '5vh', paddingBottom: '5vh' }}
           >
             <motion.div
+              ref={modalRef}
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -147,11 +167,11 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
                 tema === 'dark' ? 'bg-gray-800' : 'bg-white'
               }`}
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="sticky top-0 flex items-center justify-between bg-inherit pb-4">
                 <h2 className="text-xl font-bold">Como Usar o Sistema</h2>
                 <button
                   onClick={() => setShowHelp(false)}
-                  className={`p-2 rounded-lg transition-colors ${
+                  className={`rounded-lg p-2 transition-colors ${
                     tema === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                 >
@@ -170,44 +190,48 @@ const HelpGuide: React.FC<Props> = ({ tema }) => {
                 </button>
               </div>
 
-              <div className="space-y-6">
-                {guideItems.map(item => (
-                  <div
-                    key={item.title}
-                    className={`p-4 rounded-lg ${tema === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <div
-                        className={`p-2 rounded-lg ${tema === 'dark' ? 'bg-gray-600' : 'bg-white'}`}
-                      >
-                        {item.icon}
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-lg">{item.title}</h3>
-                        <p
-                          className={`text-sm ${
-                            tema === 'dark' ? 'text-gray-300' : 'text-gray-600'
+              <div className="max-h-[70vh] overflow-y-auto pr-2">
+                <div className="space-y-6">
+                  {guideItems.map(item => (
+                    <div
+                      key={item.title}
+                      className={`rounded-lg p-4 ${tema === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <div
+                          className={`rounded-lg p-2 ${
+                            tema === 'dark' ? 'bg-gray-600' : 'bg-white'
                           }`}
                         >
-                          {item.description}
-                        </p>
+                          {item.icon}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-medium">{item.title}</h3>
+                          <p
+                            className={`text-sm ${
+                              tema === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                            }`}
+                          >
+                            {item.description}
+                          </p>
+                        </div>
                       </div>
+                      <ul className="ml-4 space-y-2">
+                        {item.tips.map((tip, index) => (
+                          <li
+                            key={index}
+                            className={`flex items-center gap-2 text-sm ${
+                              tema === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                            }`}
+                          >
+                            <span className="text-blue-500">•</span>
+                            {tip}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="space-y-2 ml-4">
-                      {item.tips.map((tip, index) => (
-                        <li
-                          key={index}
-                          className={`flex items-center gap-2 text-sm ${
-                            tema === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                          }`}
-                        >
-                          <span className="text-blue-500">•</span>
-                          {tip}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
               <div className="mt-6 text-center">
