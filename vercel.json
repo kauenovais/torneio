@@ -38,5 +38,6 @@
   ],
   "cleanUrls": true,
   "trailingSlash": false,
-  "installCommand": "npm install --include=dev"
+  "installCommand": "npm install --include=dev",
+  "rootDirectory": "."
 } 
