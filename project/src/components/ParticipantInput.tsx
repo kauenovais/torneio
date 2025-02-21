@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Participante } from '../types';
 import '../styles/animations.css';
 
@@ -12,17 +12,23 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     // Detecta se é dispositivo móvel
     const checkMobile = () => {
       setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    // Atualiza a referência dos inputs quando a lista de participantes muda
+    inputRefs.current = inputRefs.current.slice(0, participantes.length);
+  }, [participantes]);
 
   const formatarNome = (nome: string): string => {
     if (isEquipes) return nome;
@@ -34,24 +40,36 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
 
     const primeiroNome = partes[0];
     const sobrenomes = partes.slice(1).join(' ');
-    
+
     if (sobrenomes.length > 6) {
       return `${primeiroNome} ${sobrenomes.slice(0, 6)}.`;
     }
-    
+
     return `${primeiroNome} ${sobrenomes}`;
   };
 
   const handleAddParticipante = () => {
     // Não adiciona novo participante se o último estiver vazio
     if (participantes[participantes.length - 1].nome.trim() === '') {
+      // Foca no último input vazio
+      const lastInput = inputRefs.current[participantes.length - 1];
+      lastInput?.focus();
       return;
     }
 
-    setParticipantes([
-      ...participantes,
-      { id: participantes.length + 1, nome: '', seed: participantes.length + 1 }
-    ]);
+    const novoParticipante = {
+      id: participantes.length + 1,
+      nome: '',
+      seed: participantes.length + 1
+    };
+
+    setParticipantes([...participantes, novoParticipante]);
+
+    // Foca no novo input após um pequeno delay
+    setTimeout(() => {
+      const newInput = inputRefs.current[participantes.length];
+      newInput?.focus();
+    }, 100);
   };
 
   const handleRemoveParticipante = (id: number) => {
@@ -59,6 +77,12 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
       const newParticipantes = participantes.filter(p => p.id !== id)
         .map((p, index) => ({ ...p, seed: index + 1 }));
       setParticipantes(newParticipantes);
+
+      // Foca no input anterior após remover
+      setTimeout(() => {
+        const previousInput = inputRefs.current[newParticipantes.length - 1];
+        previousInput?.focus();
+      }, 100);
     }
   };
 
@@ -70,17 +94,11 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, id: number) => {
-    if (e.key === 'Enter' && !isMobile) {
+    if (e.key === 'Enter') {
       e.preventDefault();
       const participante = participantes.find(p => p.id === id);
       if (participante && participante.nome.trim() !== '') {
         handleAddParticipante();
-        // Foca no novo input após um pequeno delay
-        setTimeout(() => {
-          const inputs = document.querySelectorAll('input[type="text"]');
-          const lastInput = inputs[inputs.length - 1] as HTMLInputElement;
-          lastInput?.focus();
-        }, 100);
       }
     }
   };
@@ -105,6 +123,12 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
         ...participantes.slice(0, -1),
         ...novosParticipantes
       ]);
+
+      // Foca no último input após colar
+      setTimeout(() => {
+        const lastInput = inputRefs.current[novosParticipantes.length - 1];
+        lastInput?.focus();
+      }, 100);
     }
   };
 
@@ -132,7 +156,7 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
     }
 
     const nomesExatos = participantesFormatados.map(p => p.nome.trim());
-    const duplicados = nomesExatos.some((nome, index) => 
+    const duplicados = nomesExatos.some((nome, index) =>
       nomesExatos.findIndex(n => n === nome) !== index
     );
 
@@ -170,20 +194,16 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
                   onKeyPress={(e) => handleKeyPress(e, participante.id)}
                   onPaste={handlePaste}
                   onBlur={(e) => handleBlur(participante.id, e.target.value)}
+                  ref={el => inputRefs.current[index] = el}
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder={isEquipes 
-                    ? 'Digite o nome da equipe ou cole uma lista' 
+                  placeholder={isEquipes
+                    ? 'Digite o nome da equipe ou cole uma lista'
                     : 'Digite o nome completo ou cole uma lista'
                   }
                 />
-                {!isEquipes && (
-                  <p className="mt-1 text-xs text-gray-500">
-                    {isMobile 
-                      ? 'Digite o nome ou cole uma lista separada por vírgulas ou linhas'
-                      : 'Digite o nome e pressione Enter para adicionar mais, ou cole uma lista'
-                    }
-                  </p>
-                )}
+                <p className="mt-1 text-xs text-gray-500">
+                  Pressione Enter para adicionar mais, ou cole uma lista separada por vírgulas ou linhas
+                </p>
               </div>
               {participantes.length > 1 && (
                 <button
