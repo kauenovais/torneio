@@ -6,7 +6,7 @@ import { Partida, Participante } from './types';
 import './styles/animations.css';
 
 function App() {
-  const [isEquipes, setIsEquipes] = useState(false);
+  const [isEquipes, setIsEquipes] = useState<boolean | null>(null);
   const [partidas, setPartidas] = useState<Partida[]>([]);
   const [mostrarChaveamento, setMostrarChaveamento] = useState(false);
   const [tema, setTema] = useState<'light' | 'dark'>('light');
@@ -59,6 +59,7 @@ function App() {
       setMostrarChaveamento(false);
       setPartidas([]);
       setTorneioSalvo(false);
+      setIsEquipes(null); // Reseta a seleção do tipo de torneio
     }
   };
 
@@ -122,6 +123,53 @@ function App() {
     }
   };
 
+  const renderSelecaoTipoTorneio = () => (
+    <div className="max-w-4xl mx-auto animate-fade-in">
+      <h2 className={`text-2xl font-bold mb-8 text-center ${
+        tema === 'dark' ? 'text-white' : 'text-gray-800'
+      }`}>
+        Selecione o Tipo de Torneio
+      </h2>
+      <div className="grid md:grid-cols-2 gap-6 px-4">
+        <button
+          onClick={() => setIsEquipes(false)}
+          className={`
+            p-8 rounded-xl shadow-lg transition-all duration-300
+            flex flex-col items-center justify-center gap-4
+            hover:transform hover:scale-105
+            ${tema === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-blue-50'}
+          `}
+        >
+          <div className="text-5xl">👤</div>
+          <h3 className={`text-xl font-semibold ${tema === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+            Torneio Individual
+          </h3>
+          <p className={`text-center ${tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+            Para competições entre jogadores individuais
+          </p>
+        </button>
+
+        <button
+          onClick={() => setIsEquipes(true)}
+          className={`
+            p-8 rounded-xl shadow-lg transition-all duration-300
+            flex flex-col items-center justify-center gap-4
+            hover:transform hover:scale-105
+            ${tema === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-blue-50'}
+          `}
+        >
+          <div className="text-5xl">👥</div>
+          <h3 className={`text-xl font-semibold ${tema === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+            Torneio em Equipes
+          </h3>
+          <p className={`text-center ${tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+            Para competições entre times ou equipes
+          </p>
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
       tema === 'dark' 
@@ -172,27 +220,31 @@ function App() {
         </header>
 
         {!mostrarChaveamento ? (
-          <div className="max-w-md mx-auto animate-fade-in">
-            <div className="mb-6 flex justify-center">
-              <label className={`inline-flex items-center gap-3 px-4 py-2 rounded-lg shadow-sm border ${
-                tema === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-              }`}>
-                <input
-                  type="checkbox"
-                  checked={isEquipes}
-                  onChange={(e) => setIsEquipes(e.target.checked)}
-                  className="form-checkbox h-5 w-5 text-blue-600 rounded"
-                />
-                <span className={tema === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
-                  {isEquipes ? 'Torneio em Equipes' : 'Torneio Individual'}
-                </span>
-              </label>
+          isEquipes === null ? (
+            renderSelecaoTipoTorneio()
+          ) : (
+            <div className="max-w-md mx-auto animate-fade-in">
+              <div className="mb-6 flex justify-center">
+                <button
+                  onClick={() => setIsEquipes(null)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    tema === 'dark'
+                      ? 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+                      : 'bg-white hover:bg-gray-50 text-gray-700'
+                  }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                  </svg>
+                  Voltar para Seleção
+                </button>
+              </div>
+              <EntradaParticipantes
+                onSubmit={handleSubmitParticipantes}
+                isEquipes={isEquipes}
+              />
             </div>
-            <EntradaParticipantes
-              onSubmit={handleSubmitParticipantes}
-              isEquipes={isEquipes}
-            />
-          </div>
+          )
         ) : (
           <div className="animate-fade-in">
             <div className="flex justify-between items-center mb-6">
