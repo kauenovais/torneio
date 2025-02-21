@@ -19,6 +19,7 @@ import {
 } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import './styles/animations.css';
+import { registerSW } from 'virtual:pwa-register';
 
 // URL base da aplicação
 const BASE_URL =
@@ -49,6 +50,8 @@ function App() {
   const [abaAtiva, setAbaAtiva] = useState<
     'chaveamento' | 'config' | 'stats' | 'admins' | 'export' | 'share'
   >('chaveamento');
+  const [pwaInstallPrompt, setPwaInstallPrompt] = useState<any>(null);
+  const [isPwaInstalled, setIsPwaInstalled] = useState(false);
 
   useEffect(() => {
     // Carregar tema do localStorage
@@ -581,7 +584,11 @@ function App() {
                 </button>
               </div>
               {renderNomeTorneio()}
-              <EntradaParticipantes onSubmit={handleSubmitParticipantes} isEquipes={isEquipes} />
+              <EntradaParticipantes
+                onSubmit={handleSubmitParticipantes}
+                isEquipes={isEquipes}
+                tema={tema}
+              />
             </div>
           )
         ) : (

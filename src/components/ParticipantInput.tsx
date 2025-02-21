@@ -5,10 +5,13 @@ import '../styles/animations.css';
 interface Props {
   onSubmit: (participantes: Participante[]) => void;
   isEquipes: boolean;
+  tema: 'light' | 'dark';
 }
 
-const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
-  const [participantes, setParticipantes] = useState<Participante[]>([{ id: 1, nome: '', seed: 1 }]);
+const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes, tema }) => {
+  const [participantes, setParticipantes] = useState<Participante[]>([
+    { id: 1, nome: '', seed: 1 },
+  ]);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -48,7 +51,7 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
     const novoParticipante = {
       id: participantes.length + 1,
       nome: '',
-      seed: participantes.length + 1
+      seed: participantes.length + 1,
     };
 
     setParticipantes([...participantes, novoParticipante]);
@@ -62,7 +65,8 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
 
   const handleRemoveParticipante = (id: number) => {
     if (participantes.length > 1) {
-      const newParticipantes = participantes.filter(p => p.id !== id)
+      const newParticipantes = participantes
+        .filter(p => p.id !== id)
         .map((p, index) => ({ ...p, seed: index + 1 }));
       setParticipantes(newParticipantes);
 
@@ -75,9 +79,7 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
   };
 
   const handleChange = (id: number, value: string) => {
-    setParticipantes(participantes.map(p =>
-      p.id === id ? { ...p, nome: value } : p
-    ));
+    setParticipantes(participantes.map(p => (p.id === id ? { ...p, nome: value } : p)));
     setError('');
   };
 
@@ -103,14 +105,11 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
       const novosParticipantes = nomes.map((nome, index) => ({
         id: participantes.length + index + 1,
         nome: formatarNome(nome),
-        seed: participantes.length + index + 1
+        seed: participantes.length + index + 1,
       }));
 
       // Substitui o participante atual (vazio) e adiciona os novos
-      setParticipantes([
-        ...participantes.slice(0, -1),
-        ...novosParticipantes
-      ]);
+      setParticipantes([...participantes.slice(0, -1), ...novosParticipantes]);
 
       // Foca no último input após colar
       setTimeout(() => {
@@ -122,9 +121,7 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
 
   const handleBlur = (id: number, value: string) => {
     const nomeFormatado = formatarNome(value);
-    setParticipantes(participantes.map(p =>
-      p.id === id ? { ...p, nome: nomeFormatado } : p
-    ));
+    setParticipantes(participantes.map(p => (p.id === id ? { ...p, nome: nomeFormatado } : p)));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,7 +130,7 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
 
     const participantesFormatados = participantes.map(p => ({
       ...p,
-      nome: formatarNome(p.nome)
+      nome: formatarNome(p.nome),
     }));
     setParticipantes(participantesFormatados);
 
@@ -144,12 +141,14 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
     }
 
     const nomesExatos = participantesFormatados.map(p => p.nome.trim());
-    const duplicados = nomesExatos.some((nome, index) =>
-      nomesExatos.findIndex(n => n === nome) !== index
+    const duplicados = nomesExatos.some(
+      (nome, index) => nomesExatos.findIndex(n => n === nome) !== index
     );
 
     if (duplicados) {
-      setError('Não são permitidos participantes com exatamente o mesmo nome. Adicione um sobrenome ou identificador para diferenciá-los.');
+      setError(
+        'Não são permitidos participantes com exatamente o mesmo nome. Adicione um sobrenome ou identificador para diferenciá-los.'
+      );
       return;
     }
 
@@ -167,30 +166,39 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-4">
           {participantes.map((participante, index) => (
-            <div
-              key={participante.id}
-              className="flex items-center space-x-3 animate-slide-in"
-            >
+            <div key={participante.id} className="flex items-center space-x-3 animate-slide-in">
               <div className="flex-grow">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  className={`block text-sm font-medium mb-1 ${
+                    tema === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                  }`}
+                >
                   {isEquipes ? 'Nome da Equipe' : 'Nome do Participante'} {index + 1}
                 </label>
                 <input
                   type="text"
                   value={participante.nome}
-                  onChange={(e) => handleChange(participante.id, e.target.value)}
-                  onKeyPress={(e) => handleKeyPress(e, participante.id)}
+                  onChange={e => handleChange(participante.id, e.target.value)}
+                  onKeyPress={e => handleKeyPress(e, participante.id)}
                   onPaste={handlePaste}
-                  onBlur={(e) => handleBlur(participante.id, e.target.value)}
-                  ref={el => inputRefs.current[index] = el}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder={isEquipes
-                    ? 'Digite o nome da equipe ou cole uma lista'
-                    : 'Digite o nome completo ou cole uma lista'
+                  onBlur={e => handleBlur(participante.id, e.target.value)}
+                  ref={el => (inputRefs.current[index] = el)}
+                  className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                    tema === 'dark'
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                  placeholder={
+                    isEquipes
+                      ? 'Digite o nome da equipe ou cole uma lista'
+                      : 'Digite o nome completo ou cole uma lista'
                   }
                 />
-                <p className="mt-1 text-xs text-gray-500">
-                  Pressione Enter para adicionar mais, ou cole uma lista separada por vírgulas ou linhas
+                <p
+                  className={`mt-1 text-xs ${tema === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}
+                >
+                  Pressione Enter para adicionar mais, ou cole uma lista separada por vírgulas ou
+                  linhas
                 </p>
               </div>
               {participantes.length > 1 && (
@@ -199,8 +207,17 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
                   onClick={() => handleRemoveParticipante(participante.id)}
                   className="mt-6 p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               )}
@@ -209,9 +226,7 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg animate-shake">
-            {error}
-          </div>
+          <div className="bg-red-50 text-red-600 p-3 rounded-lg animate-shake">{error}</div>
         )}
 
         <div className="flex justify-between items-center pt-4">
@@ -220,8 +235,17 @@ const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
             onClick={handleAddParticipante}
             className="flex items-center px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors hover-scale"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                clipRule="evenodd"
+              />
             </svg>
             Adicionar {isEquipes ? 'Equipe' : 'Participante'}
           </button>
