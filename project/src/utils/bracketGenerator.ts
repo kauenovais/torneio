@@ -9,21 +9,21 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
   // Primeira rodada
   const participantesComBye = [...participantes];
   while (participantesComBye.length < totalParticipantes) {
-    participantesComBye.push(undefined);
+    participantesComBye.push(null as unknown as Participante);
   }
 
   // Cria as partidas da primeira rodada
   for (let i = 0; i < participantesComBye.length; i += 2) {
-    const participante1 = participantesComBye[i];
-    const participante2 = participantesComBye[i + 1];
+    const participante1 = participantesComBye[i] || undefined;
+    const participante2 = participantesComBye[i + 1] || undefined;
 
     partidas.push({
       id: uuidv4(),
       rodada: 1,
       participante1,
       participante2,
-      vencedor: !participante2 ? participante1 : undefined,
-      byeAutomatico: !participante2,
+      vencedor: participante1 && !participante2 ? participante1 : undefined,
+      byeAutomatico: Boolean(participante1) && !participante2,
       placar1: undefined,
       placar2: undefined
     });
@@ -44,8 +44,8 @@ export function gerarChaveamento(participantes: Participante[]): Partida[] {
         rodada,
         participante1,
         participante2,
-        vencedor: !participante2 ? participante1 : undefined,
-        byeAutomatico: !participante2,
+        vencedor: participante1 && !participante2 ? participante1 : undefined,
+        byeAutomatico: Boolean(participante1) && !participante2,
         placar1: undefined,
         placar2: undefined,
         partidaAnterior1: partidaAnterior1?.id,
@@ -75,8 +75,8 @@ export function atualizarChaveamento(partidas: Partida[], partidaAtualizada: Par
         ...partida,
         participante1,
         participante2,
-        vencedor: !participante2 ? participante1 : undefined,
-        byeAutomatico: !participante2,
+        vencedor: participante1 && !participante2 ? participante1 : undefined,
+        byeAutomatico: Boolean(participante1) && !participante2,
         placar1: undefined,
         placar2: undefined
       };

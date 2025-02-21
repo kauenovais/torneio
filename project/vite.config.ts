@@ -98,12 +98,8 @@ export default defineConfig({
       }
     })
   ],
-  server: {
-    hmr: {
-      timeout: 5000
-    }
-  },
   build: {
+    outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
       output: {
@@ -112,6 +108,18 @@ export default defineConfig({
           utils: ['uuid']
         }
       }
-    }
+    },
+    target: 'esnext',
+    minify: 'terser'
+  },
+  server: {
+    port: 5173,
+    strictPort: true,
+    host: true
+  },
+  preview: {
+    port: 5173,
+    strictPort: true,
+    host: true
   }
 })
