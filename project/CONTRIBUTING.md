@@ -1,6 +1,6 @@
-# Contribuindo para o Gerador de Chaveamento de Torneio
+# Contribuindo para o Gerenciamento de Torneio
 
-Obrigado por considerar contribuir para o Gerador de Chaveamento! Este é um projeto focado em criar uma ferramenta intuitiva e eficiente para gerenciamento de torneios.
+Obrigado por considerar contribuir para o Gerenciamento de Torneio! Este é um projeto focado em criar uma ferramenta intuitiva e eficiente para gerenciamento de torneios.
 
 ## 📝 Código de Conduta
 
@@ -66,8 +66,8 @@ Para sugerir melhorias:
 1. **Setup do Ambiente**
    ```bash
    # Clone o repositório
-   git clone https://github.com/seu-usuario/gerador-chaveamento.git
-   cd gerador-chaveamento
+   git clone https://github.com/kauenovais/torneio.git
+   cd torneio
    
    # Instale as dependências
    npm install
@@ -176,8 +176,8 @@ Ao contribuir com funcionalidades PWA:
 
 - **Issues:** Use para bugs e sugestões
 - **Discussões:** Dúvidas e ideias
-- **Email:** suporte@gerador-chaveamento.com
 - **Discord:** [Link do servidor]
+- **Email:** kaue.novais@outlook.com
 
 ## 🎉 Processo de PR
 
@@ -207,4 +207,4 @@ Ao contribuir com funcionalidades PWA:
    - [ ] Build passa localmente
    ```
 
-Agradecemos sua contribuição para tornar o Gerador de Chaveamento ainda melhor! 🏆 
+Agradecemos sua contribuição para tornar o Gerenciamento de Torneio ainda melhor! 🏆 

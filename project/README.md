@@ -1,4 +1,4 @@
-# 🏆 Gerador de Chaveamento de Torneio
+# 🏆 Gerenciamento de Torneio
 
 Uma aplicação web moderna e intuitiva para criar e gerenciar chaveamentos de torneios, desenvolvida com React, TypeScript e Vite. Perfeita para organizar competições esportivas, e-sports, ou qualquer tipo de torneio eliminatório.
 
@@ -46,10 +46,10 @@ Uma aplicação web moderna e intuitiva para criar e gerenciar chaveamentos de t
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/gerador-chaveamento.git
+git clone https://github.com/kauenovais/torneio.git
 
 # Entre na pasta do projeto
-cd gerador-chaveamento
+cd torneio
 
 # Instale as dependências
 npm install
@@ -110,9 +110,9 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 📧 Contato
 
-Kaue Novais - [LinkedIn](https://www.linkedin.com/in/seu-linkedin) - seu.email@exemplo.com
+Kaue Novais - [LinkedIn](https://www.linkedin.com/in/kaue-novais)
 
-Link do Projeto: [https://gerador-chaveamento.vercel.app](https://gerador-chaveamento.vercel.app)
+Link do Projeto: [https://torneiotest.vercel.app/](https://torneiotest.vercel.app/)
 
 ## 🙏 Agradecimentos
 
