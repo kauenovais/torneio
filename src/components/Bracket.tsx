@@ -63,16 +63,19 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
     };
 
     if (typeof placaresAtuais.placar1 === 'number' && typeof placaresAtuais.placar2 === 'number') {
+      let vencedor: Participante | undefined;
+
+      if (placaresAtuais.placar1 > placaresAtuais.placar2) {
+        vencedor = partida.participante1 || undefined;
+      } else if (placaresAtuais.placar1 < placaresAtuais.placar2) {
+        vencedor = partida.participante2 || undefined;
+      }
+
       const partidaAtualizada: Partida = {
         ...partida,
         placar1: placaresAtuais.placar1,
         placar2: placaresAtuais.placar2,
-        vencedor:
-          placaresAtuais.placar1 > placaresAtuais.placar2
-            ? partida.participante1
-            : placaresAtuais.placar1 < placaresAtuais.placar2
-            ? partida.participante2
-            : undefined,
+        vencedor,
       };
 
       if (partidaAtualizada.vencedor) {

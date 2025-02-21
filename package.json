@@ -10,9 +10,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "generate-icons": "node scripts/generate-icons.js"
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "npm run build",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "chart.js": "^4.4.1",
