@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Partida, Participante } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/animations.css';
@@ -17,6 +17,10 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null
   );
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   const maxRodada = Math.max(...partidas.map(p => p.rodada));
 
   useEffect(() => {
@@ -26,6 +30,45 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
     setTimeout(() => setFeedback(null), 3000);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartX(e.pageX - (containerRef.current?.offsetLeft || 0));
+    setScrollLeft(containerRef.current?.scrollLeft || 0);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    if (!containerRef.current) return;
+
+    const x = e.pageX - containerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    containerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - (containerRef.current?.offsetLeft || 0));
+    setScrollLeft(containerRef.current?.scrollLeft || 0);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    if (!containerRef.current) return;
+
+    const x = e.touches[0].pageX - containerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    containerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
   };
 
   const handleVencedor = async (partida: Partida, vencedor: Participante) => {
@@ -85,9 +128,9 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 gap-8">
+      <div className="grid grid-cols-1 gap-4 md:gap-8">
         {[...Array(Math.ceil(partidas.length / 2))].map((_, index) => (
-          <div key={index} className="skeleton h-24 rounded-lg" />
+          <div key={index} className="skeleton h-16 md:h-24 rounded-lg" />
         ))}
       </div>
     );
@@ -110,11 +153,11 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
         key={partida.id}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`relative bg-white rounded-lg shadow-md p-4 ${
+        className={`relative bg-white rounded-lg shadow-md p-2 md:p-4 ${
           tema === 'dark' ? 'bg-gray-800' : ''
-        }`}
+        } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       >
-        <div className="space-y-2">
+        <div className="space-y-1 md:space-y-2">
           {[partida.participante1, partida.participante2].map((participante, index) => {
             if (!participante && index === 1 && isPassagem) return null;
 
@@ -126,7 +169,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
             return (
               <div
                 key={participante?.id || `empty-${index}`}
-                className={`flex items-center justify-between p-2 rounded transition-all ${
+                className={`flex items-center justify-between p-1 md:p-2 rounded transition-all ${
                   !participante ? 'bg-gray-50' : 'hover:bg-blue-50'
                 } ${isVencedor ? 'bg-green-50 border border-green-500' : ''} ${
                   isUltimaRodada && isVencedor ? 'animate-pulse bg-yellow-50' : ''
@@ -135,14 +178,14 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
                 <button
                   onClick={() => participante && handleVencedor(partida, participante)}
                   disabled={!participante}
-                  className={`flex-grow text-left font-medium ${
+                  className={`flex-grow text-left text-sm md:text-base font-medium truncate ${
                     isVencedor ? 'text-green-700' : 'text-gray-700'
                   }`}
                 >
                   {participante?.nome || 'Aguardando...'}
                 </button>
                 {participante && !isPassagem && (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 md:space-x-2">
                     <input
                       type="number"
                       min="0"
@@ -154,7 +197,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
                           e.target.value
                         )
                       }
-                      className="w-16 px-2 py-1 text-sm border rounded focus:ring-2 focus:ring-blue-500"
+                      className="w-12 md:w-16 px-1 md:px-2 py-1 text-xs md:text-sm border rounded focus:ring-2 focus:ring-blue-500"
                       placeholder="0"
                     />
                   </div>
@@ -162,7 +205,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
                 {isVencedor && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-green-600 ml-2"
+                    className="h-4 w-4 md:h-5 md:w-5 text-green-600 ml-1 md:ml-2"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -182,55 +225,77 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
   };
 
   return (
-    <div className="relative overflow-x-auto">
-      <AnimatePresence>
-        {feedback && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-lg ${
-              feedback.type === 'success'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
-            }`}
-          >
-            {feedback.message}
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="relative">
+      <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white dark:from-gray-900 to-transparent pointer-events-none" />
 
-      <div className="flex">
-        {Object.entries(partidasPorRodada).map(([rodada, partidasRodada]) => (
-          <div
-            key={rodada}
-            className={`flex flex-col justify-around min-w-[300px] ${
-              Number(rodada) > 1 ? 'ml-8' : ''
-            }`}
-            style={{
-              height: `${Math.pow(2, maxRodada - Number(rodada)) * 150}px`,
-              marginTop: `${Math.pow(2, Number(rodada) - 1) * 20}px`,
-            }}
-          >
-            {partidasRodada.map((partida, index) => (
-              <div
-                key={partida.id}
-                className="relative"
-                style={{
-                  marginBottom: index < partidasRodada.length - 1 ? '2rem' : 0,
-                }}
-              >
-                {renderPartida(partida)}
-                {Number(rodada) > 1 && (
-                  <div
-                    className="absolute left-0 top-1/2 w-8 border-t-2 border-gray-300"
-                    style={{ transform: 'translateX(-100%)' }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        ))}
+      <div className="mb-2 text-sm text-gray-500 dark:text-gray-400 text-center">
+        ← Arraste para navegar horizontalmente →
+      </div>
+
+      <div
+        ref={containerRef}
+        className="relative overflow-x-auto pb-4 touch-pan-x"
+        style={{
+          overscrollBehaviorX: 'contain',
+          WebkitOverflowScrolling: 'touch',
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <AnimatePresence>
+          {feedback && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-lg ${
+                feedback.type === 'success'
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
+              }`}
+            >
+              {feedback.message}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex min-w-fit">
+          {Object.entries(partidasPorRodada).map(([rodada, partidasRodada]) => (
+            <div
+              key={rodada}
+              className={`flex flex-col justify-around min-w-[250px] md:min-w-[300px] ${
+                Number(rodada) > 1 ? 'ml-4 md:ml-8' : ''
+              }`}
+              style={{
+                height: `${Math.pow(2, maxRodada - Number(rodada)) * 100}px`,
+                marginTop: `${Math.pow(2, Number(rodada) - 1) * 15}px`,
+              }}
+            >
+              {partidasRodada.map((partida, index) => (
+                <div
+                  key={partida.id}
+                  className="relative"
+                  style={{
+                    marginBottom: index < partidasRodada.length - 1 ? '1.5rem' : 0,
+                  }}
+                >
+                  {renderPartida(partida)}
+                  {Number(rodada) > 1 && (
+                    <div
+                      className="absolute left-0 top-1/2 w-4 md:w-8 border-t-2 border-gray-300"
+                      style={{ transform: 'translateX(-100%)' }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
