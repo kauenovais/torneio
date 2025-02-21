@@ -1,175 +1,241 @@
-import { useState } from 'react';
-import classNames from 'classnames';
+import React, { useState, useEffect } from 'react';
 import { Participante } from '../types';
+import '../styles/animations.css';
 
-interface EntradaParticipantesProps {
+interface Props {
   onSubmit: (participantes: Participante[]) => void;
   isEquipes: boolean;
 }
 
-export default function EntradaParticipantes({ onSubmit, isEquipes }: EntradaParticipantesProps) {
-  const [listaParticipantes, setListaParticipantes] = useState<string>('');
-  const [erro, setErro] = useState<string>('');
-  const [carregando, setCarregando] = useState(false);
+const EntradaParticipantes: React.FC<Props> = ({ onSubmit, isEquipes }) => {
+  const [participantes, setParticipantes] = useState<Participante[]>([{ id: 1, nome: '', seed: 1 }]);
+  const [error, setError] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setCarregando(true);
-    setErro('');
+  useEffect(() => {
+    // Detecta se é dispositivo móvel
+    const checkMobile = () => {
+      setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    };
     
-    try {
-      const nomes = listaParticipantes
-        .replace(/\r\n/g, '\n')
-        .split('\n')
-        .map(nome => nome.trim())
-        .filter(nome => nome.length > 0);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
-      if (nomes.length < 2) {
-        throw new Error('Por favor, insira pelo menos 2 participantes');
-      }
+  const formatarNome = (nome: string): string => {
+    if (isEquipes) return nome;
 
-      const nomesUnicos = new Set(nomes);
-      if (nomesUnicos.size !== nomes.length) {
-        throw new Error('Cada participante deve ter um nome único');
-      }
+    if (!nome.includes(' ')) return nome;
 
-      const participantes: Participante[] = nomes.map((nome, index) => ({
-        id: `p${index + 1}`,
-        nome
-      }));
+    const partes = nome.split(' ').filter(parte => parte.trim() !== '');
+    if (partes.length <= 1) return partes[0] || '';
 
-      await new Promise(resolve => setTimeout(resolve, 500));
-      onSubmit(participantes);
-    } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Erro ao processar participantes');
-    } finally {
-      setCarregando(false);
+    const primeiroNome = partes[0];
+    const sobrenomes = partes.slice(1).join(' ');
+    
+    if (sobrenomes.length > 6) {
+      return `${primeiroNome} ${sobrenomes.slice(0, 6)}.`;
+    }
+    
+    return `${primeiroNome} ${sobrenomes}`;
+  };
+
+  const handleAddParticipante = () => {
+    // Não adiciona novo participante se o último estiver vazio
+    if (participantes[participantes.length - 1].nome.trim() === '') {
+      return;
+    }
+
+    setParticipantes([
+      ...participantes,
+      { id: participantes.length + 1, nome: '', seed: participantes.length + 1 }
+    ]);
+  };
+
+  const handleRemoveParticipante = (id: number) => {
+    if (participantes.length > 1) {
+      const newParticipantes = participantes.filter(p => p.id !== id)
+        .map((p, index) => ({ ...p, seed: index + 1 }));
+      setParticipantes(newParticipantes);
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const textColado = e.clipboardData.getData('text');
-    const valorAtual = listaParticipantes;
-    
-    const novoValor = valorAtual 
-      ? valorAtual.trim() + '\n' + textColado 
-      : textColado;
-    
-    setListaParticipantes(novoValor);
-    setErro('');
+  const handleChange = (id: number, value: string) => {
+    setParticipantes(participantes.map(p =>
+      p.id === id ? { ...p, nome: value } : p
+    ));
+    setError('');
   };
 
-  const getQuantidadeParticipantes = () => {
-    return listaParticipantes
-      .split('\n')
-      .map(linha => linha.trim())
-      .filter(linha => linha.length > 0)
-      .length;
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, id: number) => {
+    if (e.key === 'Enter' && !isMobile) {
+      e.preventDefault();
+      const participante = participantes.find(p => p.id === id);
+      if (participante && participante.nome.trim() !== '') {
+        handleAddParticipante();
+        // Foca no novo input após um pequeno delay
+        setTimeout(() => {
+          const inputs = document.querySelectorAll('input[type="text"]');
+          const lastInput = inputs[inputs.length - 1] as HTMLInputElement;
+          lastInput?.focus();
+        }, 100);
+      }
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const clipboardData = e.clipboardData.getData('text');
+    const nomes = clipboardData
+      .split(/[\n,]/) // Divide por nova linha ou vírgula
+      .map(nome => nome.trim())
+      .filter(nome => nome !== '');
+
+    if (nomes.length > 0) {
+      const novosParticipantes = nomes.map((nome, index) => ({
+        id: participantes.length + index + 1,
+        nome: formatarNome(nome),
+        seed: participantes.length + index + 1
+      }));
+
+      // Substitui o participante atual (vazio) e adiciona os novos
+      setParticipantes([
+        ...participantes.slice(0, -1),
+        ...novosParticipantes
+      ]);
+    }
+  };
+
+  const handleBlur = (id: number, value: string) => {
+    const nomeFormatado = formatarNome(value);
+    setParticipantes(participantes.map(p =>
+      p.id === id ? { ...p, nome: nomeFormatado } : p
+    ));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    const participantesFormatados = participantes.map(p => ({
+      ...p,
+      nome: formatarNome(p.nome)
+    }));
+    setParticipantes(participantesFormatados);
+
+    const vazios = participantesFormatados.some(p => !p.nome.trim());
+    if (vazios) {
+      setError('Todos os campos devem ser preenchidos');
+      return;
+    }
+
+    const nomesExatos = participantesFormatados.map(p => p.nome.trim());
+    const duplicados = nomesExatos.some((nome, index) => 
+      nomesExatos.findIndex(n => n === nome) !== index
+    );
+
+    if (duplicados) {
+      setError('Não são permitidos participantes com exatamente o mesmo nome. Adicione um sobrenome ou identificador para diferenciá-los.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      onSubmit(participantesFormatados);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold mb-4">
-          Digite os {isEquipes ? 'Times' : 'Participantes'}
-        </h2>
-        
-        <div className="mb-4 text-sm text-gray-600">
-          <p className="font-medium mb-2">💡 Dicas:</p>
-          <ul className="list-disc ml-5 space-y-2">
-            <li>Cole uma lista de nomes diretamente</li>
-            <li>Um nome por linha</li>
-            <li>Linhas em branco são ignoradas</li>
-            <li>Com número ímpar de participantes, um receberá passagem automática</li>
-          </ul>
+    <div className="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
+          {participantes.map((participante, index) => (
+            <div
+              key={participante.id}
+              className="flex items-center space-x-3 animate-slide-in"
+            >
+              <div className="flex-grow">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {isEquipes ? 'Nome da Equipe' : 'Nome do Participante'} {index + 1}
+                </label>
+                <input
+                  type="text"
+                  value={participante.nome}
+                  onChange={(e) => handleChange(participante.id, e.target.value)}
+                  onKeyPress={(e) => handleKeyPress(e, participante.id)}
+                  onPaste={handlePaste}
+                  onBlur={(e) => handleBlur(participante.id, e.target.value)}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder={isEquipes 
+                    ? 'Digite o nome da equipe ou cole uma lista' 
+                    : 'Digite o nome completo ou cole uma lista'
+                  }
+                />
+                {!isEquipes && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    {isMobile 
+                      ? 'Digite o nome ou cole uma lista separada por vírgulas ou linhas'
+                      : 'Digite o nome e pressione Enter para adicionar mais, ou cole uma lista'
+                    }
+                  </p>
+                )}
+              </div>
+              {participantes.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveParticipante(participante.id)}
+                  className="mt-6 p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="relative">
-            <textarea
-              className={classNames(
-                "w-full h-48 p-3 border rounded-lg mb-1 font-mono text-sm transition-colors",
-                "focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none",
-                "resize-none placeholder-gray-400",
-                {
-                  'border-red-300 bg-red-50': erro,
-                  'border-gray-300 hover:border-blue-300': !erro
-                }
-              )}
-              value={listaParticipantes}
-              onChange={(e) => {
-                setListaParticipantes(e.target.value);
-                setErro('');
-              }}
-              onPaste={handlePaste}
-              placeholder={`Digite ou cole os nomes ${isEquipes ? 'dos times' : 'dos participantes'} aqui...\n\nExemplo:\n${
-                isEquipes 
-                  ? 'Time A\nTime B\nTime C' 
-                  : 'João Silva\nMaria Santos\nPedro Costa'
-              }`}
-              disabled={carregando}
-            />
-            <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-              {getQuantidadeParticipantes()} participante(s)
-            </div>
+        {error && (
+          <div className="bg-red-50 text-red-600 p-3 rounded-lg animate-shake">
+            {error}
           </div>
+        )}
 
-          {erro && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-md flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <span>{erro}</span>
-            </div>
-          )}
+        <div className="flex justify-between items-center pt-4">
+          <button
+            type="button"
+            onClick={handleAddParticipante}
+            className="flex items-center px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors hover-scale"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+            </svg>
+            Adicionar {isEquipes ? 'Equipe' : 'Participante'}
+          </button>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="submit"
-              disabled={carregando}
-              className={classNames(
-                "flex-1 bg-blue-500 text-white py-2 px-4 rounded-md",
-                "transition-all duration-200 flex items-center justify-center gap-2",
-                {
-                  'opacity-50 cursor-not-allowed': carregando,
-                  'hover:bg-blue-600': !carregando
-                }
-              )}
-            >
-              {carregando ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>Gerando...</span>
-                </>
-              ) : (
-                'Gerar Chaveamento'
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setListaParticipantes('');
-                setErro('');
-              }}
-              disabled={carregando}
-              className={classNames(
-                "px-4 py-2 text-gray-600 rounded-md",
-                "transition-colors duration-200",
-                {
-                  'opacity-50 cursor-not-allowed': carregando,
-                  'hover:bg-gray-100 hover:text-gray-800': !carregando
-                }
-              )}
-            >
-              Limpar
-            </button>
-          </div>
-        </form>
-      </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors hover-scale disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          >
+            {isLoading ? (
+              <>
+                <div className="loading-spinner mr-2" />
+                Gerando...
+              </>
+            ) : (
+              'Gerar Chaveamento'
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
-}
+};
+
+export default EntradaParticipantes;

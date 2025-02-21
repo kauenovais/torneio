@@ -1,197 +1,168 @@
-import { useState } from 'react';
-import classNames from 'classnames';
-import { Partida } from '../types';
+import React, { useState } from 'react';
+import { Partida, Participante } from '../types';
+import '../styles/animations.css';
 
-interface ChaveamentoProps {
+interface Props {
   partidas: Partida[];
   onAtualizarPartida: (partida: Partida) => void;
 }
 
-export default function Chaveamento({ partidas, onAtualizarPartida }: ChaveamentoProps) {
-  const [partidaFocada, setPartidaFocada] = useState<string | null>(null);
-  const maxFase = Math.max(...partidas.map(m => m.fase));
-  
-  const partidasPorFase = Array.from({ length: maxFase }, (_, i) => 
-    partidas.filter(m => m.fase === i + 1)
-  );
+const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida }) => {
+  const maxRodada = Math.max(...partidas.map(p => p.rodada));
+  const [placares, setPlacares] = useState<{ [key: string]: { placar1?: string; placar2?: string } }>({});
 
-  const handlePontuacaoChange = (partida: Partida, isPrimeiro: boolean, valor: string) => {
-    const pontuacao = valor === '' ? undefined : Math.max(0, parseInt(valor) || 0);
-    
-    const partidaAtualizada = {
-      ...partida,
-      pontuacao1: isPrimeiro ? pontuacao : partida.pontuacao1,
-      pontuacao2: !isPrimeiro ? pontuacao : partida.pontuacao2
-    };
-    onAtualizarPartida(partidaAtualizada);
+  const getPartidasPorRodada = (rodada: number) => {
+    return partidas.filter(p => p.rodada === rodada);
   };
 
-  const getEstiloParticipante = (partida: Partida, isPrimeiro: boolean) => {
-    const participante = isPrimeiro ? partida.participante1 : partida.participante2;
-    const isVencedor = partida.vencedor?.id === participante?.id;
-    const isPerdedor = partida.vencedor && partida.vencedor.id !== participante?.id;
-    const isPassagemDireta = participante && !partida.participante2;
-    const isFocado = partida.id === partidaFocada;
+  const handleVencedor = (partida: Partida, participante: Participante | null) => {
+    if (partida.vencedor?.id === participante?.id) {
+      onAtualizarPartida({ ...partida, vencedor: null, placar1: undefined, placar2: undefined });
+      setPlacares(prev => {
+        const newPlacares = { ...prev };
+        delete newPlacares[partida.id];
+        return newPlacares;
+      });
+    } else {
+      onAtualizarPartida({ ...partida, vencedor: participante });
+    }
+  };
 
-    return classNames(
-      'flex items-center justify-between gap-4 p-3 rounded-lg transition-all duration-200',
-      {
-        'bg-blue-100 text-blue-700 font-semibold': isVencedor,
-        'bg-gray-100 text-gray-400': isPerdedor,
-        'bg-green-50 text-green-700': isPassagemDireta,
-        'bg-gray-50 text-gray-900 hover:bg-gray-100': !isVencedor && !isPerdedor && !isPassagemDireta && participante,
-        'bg-gray-50 text-gray-400 italic': !participante,
-        'ring-2 ring-blue-400': isFocado
+  const handlePlacarChange = (partidaId: string, campo: 'placar1' | 'placar2', valor: string) => {
+    // Atualiza o estado local dos placares
+    setPlacares(prev => ({
+      ...prev,
+      [partidaId]: {
+        ...prev[partidaId],
+        [campo]: valor
       }
-    );
+    }));
+
+    // Converte para números
+    const placarAtual = placares[partidaId] || {};
+    const placar1 = campo === 'placar1' ? Number(valor) : Number(placarAtual.placar1 || 0);
+    const placar2 = campo === 'placar2' ? Number(valor) : Number(placarAtual.placar2 || 0);
+
+    // Encontra a partida
+    const partida = partidas.find(p => p.id === partidaId);
+    if (!partida) return;
+
+    // Determina o vencedor baseado nos placares
+    let vencedor: Participante | undefined = undefined;
+    if (!isNaN(placar1) && !isNaN(placar2)) {
+      if (placar1 > placar2) {
+        vencedor = partida.participante1;
+      } else if (placar2 > placar1) {
+        vencedor = partida.participante2;
+      }
+    }
+
+    // Atualiza a partida com os novos placares e vencedor
+    onAtualizarPartida({
+      ...partida,
+      placar1: !isNaN(placar1) ? placar1 : undefined,
+      placar2: !isNaN(placar2) ? placar2 : undefined,
+      vencedor
+    });
   };
 
-  const getTituloFase = (indiceFase: number) => {
-    if (indiceFase === maxFase - 1) return 'Final';
-    if (indiceFase === maxFase - 2) return 'Semifinal';
-    if (indiceFase === maxFase - 3) return 'Quartas de Final';
-    if (indiceFase === maxFase - 4) return 'Oitavas de Final';
-    return `${indiceFase + 1}ª Fase`;
-  };
+  const renderPartida = (partida: Partida) => {
+    const isPassagem = !partida.participante2;
+    const spacing = partida.rodada === 1 ? 'mb-4' : 'mb-8';
+    const placaresDaPartida = placares[partida.id] || {};
 
-  const isPartidaJogavel = (partida: Partida) => {
-    return partida.participante1 !== undefined;
-  };
-
-  const deveMostrarPontuacao = (partida: Partida, isPrimeiro: boolean) => {
-    return (partida.participante1 && partida.participante2) || 
-           (isPrimeiro && partida.participante1 && !partida.participante2);
-  };
-
-  const getStatusPartida = (partida: Partida) => {
-    if (!partida.participante1) return null;
-    if (!partida.participante2) return 'participante-unico';
-    if (partida.vencedor) return 'concluida';
-    if (partida.pontuacao1 !== undefined || partida.pontuacao2 !== undefined) return 'em-andamento';
-    return 'aguardando';
-  };
-
-  const getBadgeStatus = (status: string | null) => {
-    if (!status) return null;
-    
-    const badges = {
-      'concluida': { bg: 'bg-green-100', text: 'text-green-800', label: 'Concluída' },
-      'em-andamento': { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Em Andamento' },
-      'aguardando': { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Aguardando' },
-      'participante-unico': { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Participante Único' }
-    };
-
-    const badge = badges[status as keyof typeof badges];
     return (
-      <span className={`text-xs px-2 py-1 rounded-full ${badge.bg} ${badge.text} font-medium`}>
-        {badge.label}
-      </span>
+      <div 
+        key={partida.id} 
+        className={`relative bg-white rounded-lg shadow-lg p-4 ${spacing} animate-scale-in hover-scale transition-all`}
+      >
+        <div className="space-y-2">
+          {[partida.participante1, partida.participante2].map((participante, index) => {
+            if (!participante && index === 1 && isPassagem) return null;
+
+            const isVencedor = participante?.id === partida.vencedor?.id;
+            const isUltimaRodada = partida.rodada === maxRodada;
+            const placarAtual = index === 0 ? placaresDaPartida.placar1 : placaresDaPartida.placar2;
+            const placarFinal = index === 0 ? partida.placar1 : partida.placar2;
+
+            return (
+              <div
+                key={participante?.id || `empty-${index}`}
+                className={`
+                  w-full p-3 rounded-lg transition-all flex items-center justify-between
+                  ${!participante ? 'bg-gray-100' : 'hover:bg-blue-50'}
+                  ${isVencedor ? 'bg-green-100 border-2 border-green-500' : 'border-2 border-transparent'}
+                  ${isUltimaRodada && isVencedor ? 'animate-pulse bg-yellow-100 border-yellow-500' : ''}
+                `}
+              >
+                <div className="flex-grow">
+                  <button
+                    onClick={() => participante && handleVencedor(partida, participante)}
+                    disabled={!participante}
+                    className={`font-medium ${isVencedor ? 'text-green-700' : 'text-gray-700'} w-full text-left`}
+                  >
+                    {participante?.nome || 'Aguardando...'}
+                  </button>
+                </div>
+                {participante && !isPassagem && (
+                  <div className="flex items-center ml-2">
+                    <input
+                      type="number"
+                      min="0"
+                      value={placarAtual ?? placarFinal ?? ''}
+                      onChange={(e) => handlePlacarChange(partida.id, index === 0 ? 'placar1' : 'placar2', e.target.value)}
+                      className="w-16 px-2 py-1 text-sm border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="0"
+                    />
+                  </div>
+                )}
+                {isVencedor && (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {isPassagem && (
+          <div className="absolute -right-6 top-1/2 transform -translate-y-1/2">
+            <div className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+              Passagem Automática
+            </div>
+          </div>
+        )}
+      </div>
     );
   };
 
   return (
-    <div className="flex flex-col items-center gap-12 p-4">
-      {partidasPorFase.map((partidasFase, indiceFase) => {
-        const isUltimasFases = indiceFase >= maxFase - 2;
-        
+    <div className="flex gap-8 overflow-x-auto pb-8">
+      {Array.from({ length: maxRodada }, (_, i) => i + 1).map((rodada) => {
+        const partidasRodada = getPartidasPorRodada(rodada);
+        const isUltimaRodada = rodada === maxRodada;
+
         return (
-          <div key={indiceFase} className="w-full">
-            <h3 className="text-xl font-bold text-center mb-6 text-blue-900 bg-blue-50 py-3 rounded-lg">
-              {getTituloFase(indiceFase)}
-            </h3>
-            <div className={classNames(
-              'grid gap-8 mx-auto',
-              {
-                'max-w-xl': isUltimasFases,
-                'grid-cols-1 md:grid-cols-2 lg:grid-cols-4 max-w-7xl': !isUltimasFases
-              }
-            )}>
-              {partidasFase.map((partida) => {
-                const status = getStatusPartida(partida);
-                return (
-                  <div 
-                    key={partida.id} 
-                    className={classNames(
-                      "bg-white rounded-xl shadow-lg p-4 border transition-all duration-200",
-                      {
-                        'border-gray-100': partida.id !== partidaFocada,
-                        'border-blue-400 shadow-lg shadow-blue-100': partida.id === partidaFocada
-                      }
-                    )}
-                    onClick={() => setPartidaFocada(partida.id)}
-                    onMouseLeave={() => setPartidaFocada(null)}
-                  >
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm font-medium text-gray-500">
-                          Partida {partida.id.replace('p', '')}
-                        </span>
-                        {getBadgeStatus(status)}
-                      </div>
-                      <div className={getEstiloParticipante(partida, true)}>
-                        <span className="flex-grow">{partida.participante1?.nome || 'A Definir'}</span>
-                        {deveMostrarPontuacao(partida, true) && (
-                          <input
-                            type="number"
-                            min="0"
-                            className={classNames(
-                              "w-16 p-2 border rounded-md focus:outline-none focus:ring-2 transition-colors",
-                              {
-                                'bg-gray-50 border-gray-200': !isPartidaJogavel(partida),
-                                'border-gray-300 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-300': isPartidaJogavel(partida)
-                              }
-                            )}
-                            value={partida.pontuacao1 ?? ''}
-                            onChange={(e) => handlePontuacaoChange(partida, true, e.target.value)}
-                            disabled={!isPartidaJogavel(partida)}
-                            placeholder="0"
-                          />
-                        )}
-                      </div>
-                      <div className="border-t border-gray-100" />
-                      <div className={getEstiloParticipante(partida, false)}>
-                        <span className="flex-grow">
-                          {partida.participante2?.nome || 'A Definir'}
-                        </span>
-                        {deveMostrarPontuacao(partida, false) && (
-                          <input
-                            type="number"
-                            min="0"
-                            className={classNames(
-                              "w-16 p-2 border rounded-md focus:outline-none focus:ring-2 transition-colors",
-                              {
-                                'bg-gray-50 border-gray-200': !isPartidaJogavel(partida),
-                                'border-gray-300 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-300': isPartidaJogavel(partida)
-                              }
-                            )}
-                            value={partida.pontuacao2 ?? ''}
-                            onChange={(e) => handlePontuacaoChange(partida, false, e.target.value)}
-                            disabled={!isPartidaJogavel(partida)}
-                            placeholder="0"
-                          />
-                        )}
-                      </div>
-                      {partida.vencedor && (
-                        <div className="mt-3 text-sm bg-green-50 text-green-700 p-2 rounded-md font-medium flex items-center gap-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                          Vencedor: {partida.vencedor.nome}
-                        </div>
-                      )}
-                      {partida.proximaPartidaId && (
-                        <div className="mt-2 text-xs text-gray-500">
-                          Próxima partida: {partida.proximaPartidaId.replace('p', '')}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+          <div
+            key={rodada}
+            className={`flex-shrink-0 w-64 animate-fade-in`}
+            style={{ animationDelay: `${rodada * 0.1}s` }}
+          >
+            <div className={`
+              text-center mb-4 p-2 rounded-lg
+              ${isUltimaRodada ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}
+            `}>
+              {isUltimaRodada ? 'Final' : `${rodada}ª Rodada`}
+            </div>
+            <div className="space-y-8">
+              {partidasRodada.map(renderPartida)}
             </div>
           </div>
         );
       })}
     </div>
   );
-}
+};
+
+export default Chaveamento;

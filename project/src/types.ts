@@ -1,16 +1,18 @@
 export interface Participante {
-  id: string;
+  id: number;
   nome: string;
+  seed: number;
 }
 
 export interface Partida {
   id: string;
-  fase: number;
+  rodada: number;
   posicao: number;
   participante1?: Participante;
   participante2?: Participante;
-  pontuacao1?: number;
-  pontuacao2?: number;
+  placar1?: number;
+  placar2?: number;
   vencedor?: Participante;
   proximaPartidaId?: string;
+  byeAutomatico?: boolean; // Indica se é uma passagem automática
 }

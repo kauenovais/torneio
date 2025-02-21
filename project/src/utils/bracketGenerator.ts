@@ -1,130 +1,112 @@
 import { Partida, Participante } from '../types';
+import { v4 as uuidv4 } from 'uuid';
 
 export function gerarChaveamento(participantes: Participante[]): Partida[] {
+  const rodadas = Math.ceil(Math.log2(participantes.length));
+  const totalParticipantes = Math.pow(2, rodadas);
   const partidas: Partida[] = [];
-  const totalParticipantes = participantes.length;
-  
-  // Calcula o número de fases necessárias
-  const fases = Math.ceil(Math.log2(Math.max(totalParticipantes, 2)));
-  const tamanhoChaveamentoPerfeiro = Math.pow(2, fases);
-  
-  // Organiza os participantes em pares, com byes no final
-  const participantesEmbaralhados = [...participantes].sort(() => Math.random() - 0.5);
-  const partidasPrimeiraFase: Partida[] = [];
-  
-  // Cria partidas da primeira fase
-  for (let i = 0; i < tamanhoChaveamentoPerfeiro; i += 2) {
-    const partida: Partida = {
-      id: `p${partidas.length + partidasPrimeiraFase.length + 1}`,
-      fase: 1,
-      posicao: i / 2,
-      participante1: participantesEmbaralhados[i] || undefined,
-      participante2: participantesEmbaralhados[i + 1] || undefined
-    };
-    
-    // Trata byes na primeira fase apenas
-    if (partida.participante1 && !partida.participante2 && partida.fase === 1) {
-      partida.vencedor = partida.participante1;
-      partida.pontuacao1 = 1;
-      partida.pontuacao2 = 0;
-    }
-    
-    partidasPrimeiraFase.push(partida);
+
+  // Primeira rodada
+  const participantesComBye = [...participantes];
+  while (participantesComBye.length < totalParticipantes) {
+    participantesComBye.push(null);
   }
-  
-  partidas.push(...partidasPrimeiraFase);
-  
-  // Cria fases subsequentes
-  let partidasFaseAnterior = partidasPrimeiraFase;
-  for (let fase = 2; fase <= fases; fase++) {
-    const partidasFaseAtual: Partida[] = [];
-    const partidasPorFase = Math.pow(2, fases - fase);
-    
-    for (let i = 0; i < partidasPorFase; i++) {
-      const partida: Partida = {
-        id: `p${partidas.length + partidasFaseAtual.length + 1}`,
-        fase,
-        posicao: i,
-        participante1: undefined,
-        participante2: undefined
-      };
-      
-      // Liga as partidas da fase anterior a esta partida
-      const partidaAnterior1 = partidasFaseAnterior[i * 2];
-      const partidaAnterior2 = partidasFaseAnterior[i * 2 + 1];
-      
-      if (partidaAnterior1) {
-        partidaAnterior1.proximaPartidaId = partida.id;
-        if (partidaAnterior1.vencedor) {
-          partida.participante1 = partidaAnterior1.vencedor;
-        }
-      }
-      
-      if (partidaAnterior2) {
-        partidaAnterior2.proximaPartidaId = partida.id;
-        if (partidaAnterior2.vencedor) {
-          partida.participante2 = partidaAnterior2.vencedor;
-        }
-      }
-      
-      partidasFaseAtual.push(partida);
-    }
-    
-    partidas.push(...partidasFaseAtual);
-    partidasFaseAnterior = partidasFaseAtual;
+
+  // Cria as partidas da primeira rodada
+  for (let i = 0; i < participantesComBye.length; i += 2) {
+    const participante1 = participantesComBye[i];
+    const participante2 = participantesComBye[i + 1];
+
+    // Se tiver apenas um participante, ele avança automaticamente
+    const vencedor = participante2 === null ? participante1 : undefined;
+
+    partidas.push({
+      id: uuidv4(),
+      rodada: 1,
+      participante1,
+      participante2,
+      vencedor,
+      byeAutomatico: participante2 === null,
+      placar1: undefined,
+      placar2: undefined
+    });
   }
-  
+
+  // Cria as partidas das rodadas seguintes
+  let partidasRodadaAnterior = partidas.filter(p => p.rodada === 1);
+  for (let rodada = 2; rodada <= rodadas; rodada++) {
+    for (let i = 0; i < partidasRodadaAnterior.length; i += 2) {
+      const partidaAnterior1 = partidasRodadaAnterior[i];
+      const partidaAnterior2 = partidasRodadaAnterior[i + 1];
+
+      // Se uma das partidas anteriores tem bye automático, o vencedor já é conhecido
+      const participante1 = partidaAnterior1?.vencedor || null;
+      const participante2 = partidaAnterior2?.vencedor || null;
+
+      // Se tiver apenas um participante, ele avança automaticamente
+      const vencedor = participante2 === null ? participante1 : undefined;
+
+      partidas.push({
+        id: uuidv4(),
+        rodada,
+        participante1,
+        participante2,
+        vencedor,
+        byeAutomatico: participante2 === null,
+        placar1: undefined,
+        placar2: undefined,
+        partidaAnterior1: partidaAnterior1?.id,
+        partidaAnterior2: partidaAnterior2?.id
+      });
+    }
+    partidasRodadaAnterior = partidas.filter(p => p.rodada === rodada);
+  }
+
   return partidas;
 }
 
 export function atualizarChaveamento(partidas: Partida[], partidaAtualizada: Partida): Partida[] {
-  const novasPartidas = [...partidas];
-  const indicePartida = novasPartidas.findIndex(p => p.id === partidaAtualizada.id);
-  
-  if (indicePartida === -1) return partidas;
-  
-  // Determina o vencedor baseado nas pontuações
-  let vencedor: Participante | undefined;
-  
-  // Se há apenas um participante, ele precisa pontuar para avançar
-  if (partidaAtualizada.participante1 && !partidaAtualizada.participante2) {
-    if (partidaAtualizada.pontuacao1 !== undefined && partidaAtualizada.pontuacao1 > 0) {
-      vencedor = partidaAtualizada.participante1;
+  // Encontra todas as partidas que dependem da partida atualizada
+  const partidasAtualizadas = partidas.map(partida => {
+    if (partida.id === partidaAtualizada.id) {
+      return partidaAtualizada;
     }
-  } 
-  // Se há dois participantes, maior pontuação vence
-  else if (partidaAtualizada.pontuacao1 !== undefined && partidaAtualizada.pontuacao2 !== undefined) {
-    if (partidaAtualizada.pontuacao1 > partidaAtualizada.pontuacao2) {
-      vencedor = partidaAtualizada.participante1;
-    } else if (partidaAtualizada.pontuacao2 > partidaAtualizada.pontuacao1) {
-      vencedor = partidaAtualizada.participante2;
-    }
-  }
-  
-  // Atualiza a partida atual
-  novasPartidas[indicePartida] = {
-    ...partidaAtualizada,
-    vencedor
-  };
-  
-  // Se o vencedor mudou, atualiza as partidas subsequentes
-  if (vencedor && partidaAtualizada.proximaPartidaId) {
-    const proximaPartida = novasPartidas.find(p => p.id === partidaAtualizada.proximaPartidaId);
-    if (proximaPartida) {
-      const isPosicaoPar = partidaAtualizada.posicao % 2 === 0;
-      const proximaPartidaAtualizada = {
-        ...proximaPartida,
-        participante1: isPosicaoPar ? vencedor : proximaPartida.participante1,
-        participante2: !isPosicaoPar ? vencedor : proximaPartida.participante2,
-        pontuacao1: undefined,
-        pontuacao2: undefined,
-        vencedor: undefined
+
+    // Se esta partida depende da partida atualizada
+    if (partida.partidaAnterior1 === partidaAtualizada.id || partida.partidaAnterior2 === partidaAtualizada.id) {
+      const partidaAnterior1 = partidas.find(p => p.id === partida.partidaAnterior1);
+      const partidaAnterior2 = partidas.find(p => p.id === partida.partidaAnterior2);
+
+      const participante1 = partidaAnterior1?.vencedor || null;
+      const participante2 = partidaAnterior2?.vencedor || null;
+
+      // Se tiver apenas um participante, ele avança automaticamente
+      const vencedor = participante2 === null ? participante1 : undefined;
+
+      return {
+        ...partida,
+        participante1,
+        participante2,
+        vencedor,
+        byeAutomatico: participante2 === null,
+        placar1: undefined,
+        placar2: undefined
       };
-      
-      const indiceProximaPartida = novasPartidas.findIndex(p => p.id === partidaAtualizada.proximaPartidaId);
-      novasPartidas[indiceProximaPartida] = proximaPartidaAtualizada;
     }
+
+    return partida;
+  });
+
+  // Verifica se alguma partida foi atualizada e precisa propagar as mudanças
+  const algumaPropagacao = partidasAtualizadas.some((partida, index) => {
+    const partidaOriginal = partidas[index];
+    return JSON.stringify(partida) !== JSON.stringify(partidaOriginal);
+  });
+
+  // Se houve alguma propagação, atualiza novamente para garantir que todas as mudanças foram propagadas
+  if (algumaPropagacao) {
+    return atualizarChaveamento(partidasAtualizadas, partidaAtualizada);
   }
-  
-  return novasPartidas;
+
+  return partidasAtualizadas;
 }
