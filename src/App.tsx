@@ -543,15 +543,25 @@ function App() {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              {/* Medalha com fita */}
-              <circle cx="12" cy="9" r="3" />
-              <path d="M12 12v7" />
-              <path d="M9 16l3 3 3-3" />
-              <path d="M9 6c0-1.5.5-3 2-4" />
-              <path d="M15 6c0-1.5-.5-3-2-4" />
+              {/* Medalha principal */}
+              <circle cx="12" cy="10" r="4" />
+              <circle cx="12" cy="10" r="2.5" opacity="0.5" />
+
+              {/* Fita da medalha */}
+              <path d="M12 2v4" />
+              <path d="M9 3c0 0 0 2 3 3c3-1 3-3 3-3" />
+
               {/* Detalhes da medalha */}
-              <path d="M12 8v2" opacity="0.5" />
-              <path d="M10.5 9H13.5" opacity="0.5" />
+              <path d="M12 14v2" />
+              <path d="M8.5 15.5L12 17l3.5-1.5" />
+
+              {/* Estrelas decorativas */}
+              <path d="M7 8l-1-1" opacity="0.5" />
+              <path d="M17 8l1-1" opacity="0.5" />
+
+              {/* Brilho da medalha */}
+              <path d="M10 10h4" opacity="0.3" />
+              <path d="M12 8v4" opacity="0.3" />
             </svg>
           </div>
           <div className="relative z-10 space-y-2">
