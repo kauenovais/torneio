@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gerador de Ícones</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .icon-preview { margin: 20px 0; }
+    canvas { border: 1px solid #ccc; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Gerador de Ícones para PWA</h1>
+  <div class="icon-preview"></div>
+  <script>
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+    const iconBase = `
+      <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <rect width="512" height="512" rx="128" fill="#3B82F6"/>
+        <g transform="scale(16)">
+          <path d="M8 10H14V12H8V10Z" fill="white"/>
+          <path d="M14 10H24V12H14V10Z" fill="white" fill-opacity="0.7"/>
+          <path d="M8 15H14V17H8V15Z" fill="white"/>
+          <path d="M14 15H24V17H14V15Z" fill="white" fill-opacity="0.7"/>
+          <path d="M8 20H14V22H8V20Z" fill="white"/>
+          <path d="M14 20H24V22H14V20Z" fill="white" fill-opacity="0.7"/>
+          <circle cx="14" cy="11" r="2" fill="#3B82F6" stroke="white" stroke-width="1.5"/>
+          <circle cx="14" cy="16" r="2" fill="#3B82F6" stroke="white" stroke-width="1.5"/>
+          <circle cx="14" cy="21" r="2" fill="#3B82F6" stroke="white" stroke-width="1.5"/>
+          <path d="M14 11L24 16M24 11L14 16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </g>
+      </svg>
+    `;
+
+    function generateIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, size, size);
+        const link = document.createElement('a');
+        link.download = `icon-${size}x${size}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.textContent = `Download icon-${size}x${size}.png`;
+        document.body.appendChild(link);
+        document.body.appendChild(document.createElement('br'));
+      };
+
+      img.src = 'data:image/svg+xml;base64,' + btoa(iconBase);
+    }
+
+    // Gerar todos os tamanhos
+    sizes.forEach(size => generateIcon(size));
+
+    // Gerar apple-touch-icon
+    generateIcon(180);
+  </script>
+</body>
+</html>

@@ -17,6 +17,7 @@ dist-ssr
 
 # Editor directories and files
 .vscode/*
+!.vscode/settings.json
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -41,14 +42,11 @@ coverage
 junit.xml
 
 # Production build
-build
+/dist
 /build
 .next
 .nuxt
-.vuepress/dist
-.docusaurus
 .output
-.vercel
 
 # Temporary files
 .temp
@@ -84,6 +82,29 @@ yarn-error.log*
 **/public/sw.js.map
 **/public/workbox-*.js.map
 **/public/worker-*.js.map
+
+# Vite
+dev-dist/
+vite.config.ts.timestamp-*
+
+# Keep these files
+!public/
+!src/
+!index.html
+!vite.config.ts
+!tsconfig.json
+!tsconfig.node.json
+!package.json
+!package-lock.json
+!postcss.config.js
+!tailwind.config.js
+!.prettierrc
+!.editorconfig
+!.eslintrc.cjs
+!README.md
+!LICENSE
+!CONTRIBUTING.md
+!vercel.json
 
 # IDE specific files
 .idea
