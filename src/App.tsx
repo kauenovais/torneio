@@ -543,13 +543,15 @@ function App() {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-              <path d="M12 3v1" opacity="0.5" />
-              <path d="M18 7h1" opacity="0.5" />
-              <path d="M5 7H4" opacity="0.5" />
-              <path d="M16.95 11.95l0.7 0.7" opacity="0.5" />
-              <path d="M7.05 11.95l-0.7 0.7" opacity="0.5" />
+              {/* Medalha com fita */}
+              <circle cx="12" cy="9" r="3" />
+              <path d="M12 12v7" />
+              <path d="M9 16l3 3 3-3" />
+              <path d="M9 6c0-1.5.5-3 2-4" />
+              <path d="M15 6c0-1.5-.5-3-2-4" />
+              {/* Detalhes da medalha */}
+              <path d="M12 8v2" opacity="0.5" />
+              <path d="M10.5 9H13.5" opacity="0.5" />
             </svg>
           </div>
           <div className="relative z-10 space-y-2">
@@ -559,7 +561,7 @@ function App() {
               Torneio Individual
             </h3>
             <p className={`text-center ${tema === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-              Para competições entre jogadores individuais
+              Para competições entre atletas individuais
             </p>
           </div>
         </button>
@@ -591,15 +593,20 @@ function App() {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              <path d="M9 3v1" opacity="0.5" />
-              <path d="M15 7h1" opacity="0.5" />
-              <path d="M3 7H2" opacity="0.5" />
-              <path d="M13.95 11.95l0.7 0.7" opacity="0.5" />
-              <path d="M4.05 11.95l-0.7 0.7" opacity="0.5" />
+              {/* Troféu central */}
+              <path d="M12 15l-2-2h4l-2 2z" />
+              <path d="M7 7h10v3c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4V7z" />
+              <path d="M17 7h2v3c0 1.1-.9 2-2 2" />
+              <path d="M7 7H5v3c0 1.1.9 2 2 2" />
+              {/* Base do troféu */}
+              <path d="M12 15v3" />
+              <path d="M8 18h8" />
+              {/* Detalhes do troféu */}
+              <path d="M12 7v2" opacity="0.5" />
+              <path d="M9 9h6" opacity="0.5" />
+              {/* Estrelas laterais */}
+              <path d="M5 5l1 1" opacity="0.5" />
+              <path d="M19 5l-1 1" opacity="0.5" />
             </svg>
           </div>
           <div className="relative z-10 space-y-2">
