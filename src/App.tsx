@@ -5,6 +5,11 @@ import { gerarChaveamento, atualizarChaveamento } from './utils/bracketGenerator
 import { Partida, Participante } from './types';
 import './styles/animations.css';
 
+// URL base da aplicação
+const BASE_URL = typeof window !== 'undefined' 
+  ? window.location.origin 
+  : 'https://seu-dominio.vercel.app';
+
 function App() {
   const [isEquipes, setIsEquipes] = useState<boolean | null>(null);
   const [partidas, setPartidas] = useState<Partida[]>([]);
@@ -92,7 +97,7 @@ function App() {
       texto += '\n';
     }
     
-    texto += `\n📱 Crie seu próprio chaveamento em: ${window.location.href}`;
+    texto += `\n📱 Crie seu próprio chaveamento em: ${BASE_URL}`;
     
     return texto;
   };
