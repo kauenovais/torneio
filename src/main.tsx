@@ -5,11 +5,18 @@ import './index.css';
 import './styles/components.css';
 import { registerSW } from 'virtual:pwa-register';
 
+declare global {
+  interface Window {
+    deferredPrompt: BeforeInstallPromptEvent | null;
+  }
+}
+
 // Registra o service worker com atualização automática
 const updateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
-    if (confirm('Nova versão disponível. Deseja atualizar?')) {
+    const updateConfirm = window.confirm('Nova versão disponível. Deseja atualizar?');
+    if (updateConfirm) {
       updateSW(true);
     }
   },
@@ -19,7 +26,7 @@ const updateSW = registerSW({
     offlineReady.innerHTML = `
       <div class="pwa-offline-message">
         Aplicativo pronto para uso offline!
-        <button onclick="this.parentElement.remove()">OK</button>
+        <button onclick="this.parentElement.parentElement.remove()">OK</button>
       </div>
     `;
     document.body.appendChild(offlineReady);
@@ -35,7 +42,8 @@ const updateSW = registerSW({
       }
 
       // Monitora mudanças no estado de instalação
-      window.addEventListener('appinstalled', event => {
+      window.addEventListener('appinstalled', () => {
+        window.deferredPrompt = null;
         console.log('Aplicativo instalado com sucesso');
       });
     }
@@ -45,12 +53,15 @@ const updateSW = registerSW({
   },
 });
 
+// Inicializa o deferredPrompt como null
+window.deferredPrompt = null;
+
 // Adiciona listener para o evento beforeinstallprompt
 window.addEventListener('beforeinstallprompt', e => {
   // Previne o comportamento padrão
   e.preventDefault();
   // Armazena o evento para usar depois
-  window.deferredPrompt = e;
+  window.deferredPrompt = e as BeforeInstallPromptEvent;
   console.log('Prompt de instalação disponível');
 });
 

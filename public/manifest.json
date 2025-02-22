@@ -100,5 +100,77 @@
       "url": "/?action=new",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
+  ],
+  "splash_screens": [
+    {
+      "src": "/splash/splash-640x1136.png",
+      "sizes": "640x1136",
+      "type": "image/png",
+      "platform": "ios",
+      "device": "iPhone 5"
+    },
+    {
+      "src": "/splash/splash-750x1334.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "ios",
+      "device": "iPhone 6/7/8"
+    },
+    {
+      "src": "/splash/splash-828x1792.png",
+      "sizes": "828x1792",
+      "type": "image/png",
+      "platform": "ios",
+      "device": "iPhone XR"
+    },
+    {
+      "src": "/splash/splash-1125x2436.png",
+      "sizes": "1125x2436",
+      "type": "image/png",
+      "platform": "ios",
+      "device": "iPhone X/XS"
+    },
+    {
+      "src": "/splash/splash-1242x2688.png",
+      "sizes": "1242x2688",
+      "type": "image/png",
+      "platform": "ios",
+      "device": "iPhone XS Max"
+    },
+    {
+      "src": "/splash/splash-1170x2532.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "platform": "ios",
+      "device": "iPhone 12/13"
+    },
+    {
+      "src": "/splash/splash-1284x2778.png",
+      "sizes": "1284x2778",
+      "type": "image/png",
+      "platform": "ios",
+      "device": "iPhone 12/13 Pro Max"
+    },
+    {
+      "src": "/splash/splash-1620x2160.png",
+      "sizes": "1620x2160",
+      "type": "image/png",
+      "platform": "ios",
+      "device": "iPad"
+    },
+    {
+      "src": "/splash/splash-1668x2224.png",
+      "sizes": "1668x2224",
+      "type": "image/png",
+      "platform": "ios",
+      "device": "iPad Pro 10.5\""
+    },
+    {
+      "src": "/splash/splash-2048x2732.png",
+      "sizes": "2048x2732",
+      "type": "image/png",
+      "platform": "ios",
+      "device": "iPad Pro 12.9\""
+    }
   ]
 }
