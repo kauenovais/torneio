@@ -23,16 +23,33 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isScrollingHorizontally, setIsScrollingHorizontally] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollPositionRef = useRef(0);
   const maxRodada = Math.max(...partidas.map(p => p.rodada));
   const [showScrollHint, setShowScrollHint] = useState(true);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 800);
-
-    // Esconde a dica de scroll após 5 segundos
     const timer = setTimeout(() => setShowScrollHint(false), 5000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      scrollPositionRef.current = window.scrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (scrollPositionRef.current > 0) {
+      window.scrollTo(0, scrollPositionRef.current);
+    }
+  }, [placares, partidas]);
 
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
@@ -56,10 +73,9 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
     const deltaX = startX - x;
     const deltaY = startY - y;
 
-    // Determina a direção do scroll no início do movimento
-    if (!isScrollingHorizontally && (Math.abs(deltaX) > Math.abs(deltaY))) {
+    if (!isScrollingHorizontally && Math.abs(deltaX) > Math.abs(deltaY)) {
       setIsScrollingHorizontally(true);
-      e.preventDefault(); // Previne scroll vertical quando movendo horizontalmente
+      e.preventDefault();
     }
 
     if (isScrollingHorizontally) {
@@ -79,8 +95,11 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
     }
   };
 
-  const handleVencedor = async (partida: Partida, vencedor: Participante) => {
+  const handleVencedor = async (partida: Partida, vencedor: Participante, e: React.MouseEvent) => {
     try {
+      e.preventDefault();
+      e.stopPropagation();
+
       setLoading(true);
       const partidaAtualizada = { ...partida, vencedor };
       await onAtualizarPartida(partidaAtualizada);
@@ -184,7 +203,7 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
                 }`}
               >
                 <button
-                  onClick={() => participante && handleVencedor(partida, participante)}
+                  onClick={e => participante && handleVencedor(partida, participante, e)}
                   disabled={!participante}
                   className={`flex-grow text-left text-sm md:text-base font-medium truncate ${
                     isVencedor ? 'text-green-700' : 'text-gray-700'
@@ -244,12 +263,23 @@ const Chaveamento: React.FC<Props> = ({ partidas, onAtualizarPartida, tema = 'li
             exit={{ opacity: 0 }}
             className="absolute top-0 left-0 right-0 z-10 flex justify-center"
           >
-            <div className={`px-4 py-2 rounded-full ${
-              tema === 'dark' ? 'bg-gray-800' : 'bg-white'
-            } shadow-lg`}>
+            <div
+              className={`px-4 py-2 rounded-full ${
+                tema === 'dark' ? 'bg-gray-800' : 'bg-white'
+              } shadow-lg`}
+            >
               <div className="flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span className="text-sm">Deslize para navegar</span>
               </div>
