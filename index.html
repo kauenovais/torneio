@@ -36,6 +36,40 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Torneio" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Torneio" />
+    <meta name="msapplication-TileColor" content="#3B82F6" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    <meta name="theme-color" content="#3B82F6" />
+    <link
+      rel="apple-touch-startup-image"
+      href="/splash/apple-splash-2048-2732.jpg"
+      media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/splash/apple-splash-1668-2388.jpg"
+      media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/splash/apple-splash-1536-2048.jpg"
+      media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/splash/apple-splash-1242-2688.jpg"
+      media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/splash/apple-splash-1125-2436.jpg"
+      media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/splash/apple-splash-828-1792.jpg"
+      media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
     <title>Gerador de Chaveamento</title>
   </head>
   <body>
@@ -46,19 +80,5 @@
         Para usar este aplicativo, por favor habilite o JavaScript no seu navegador.
       </div>
     </noscript>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker
-            .register('/sw.js')
-            .then(registration => {
-              console.log('SW registered:', registration);
-            })
-            .catch(error => {
-              console.log('SW registration failed:', error);
-            });
-        });
-      }
-    </script>
   </body>
 </html>

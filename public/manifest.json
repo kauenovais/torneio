@@ -3,10 +3,23 @@
   "short_name": "Torneio",
   "description": "Crie e gerencie seus chaveamentos de torneio facilmente",
   "start_url": "/",
+  "id": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#3B82F6",
   "orientation": "portrait-primary",
+  "categories": ["sports", "productivity"],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "edge_side_panel": {
+    "preferred_width": 480
+  },
+  "handle_links": "preferred",
+  "dir": "ltr",
+  "lang": "pt-BR",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -55,6 +68,28 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Tela inicial do Gerenciador de Torneios"
+    },
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Versão móvel do Gerenciador de Torneios"
     }
   ],
   "shortcuts": [
@@ -65,25 +100,5 @@
       "url": "/?action=new",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
-  ],
-  "screenshots": [
-    {
-      "src": "screenshots/desktop.png",
-      "sizes": "1280x800",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Tela inicial do Gerenciador de Torneios"
-    },
-    {
-      "src": "screenshots/mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Versão móvel do Gerenciador de Torneios"
-    }
-  ],
-  "categories": ["sports", "productivity"],
-  "dir": "ltr",
-  "lang": "pt-BR",
-  "prefer_related_applications": false
+  ]
 }
